@@ -68,3 +68,4 @@ npm test
 ## Environment
 
 Copie `.env.example` para `.env` se for rodar o app fora do Docker. No Compose, `DATABASE_URL` aponta para o host `postgres`.
+# fitmetrify
