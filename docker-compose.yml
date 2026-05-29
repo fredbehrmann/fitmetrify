@@ -1,0 +1,53 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: fitmetrify
+      POSTGRES_PASSWORD: fitmetrify
+      POSTGRES_DB: fitmetrify
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fitmetrify -d fitmetrify"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: .
+      target: dev
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: postgresql://fitmetrify:fitmetrify@postgres:5432/fitmetrify
+      NEXT_PUBLIC_APP_URL: http://localhost:3001
+    volumes:
+      - .:/app
+      - web_node_modules:/app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web-prod:
+    profiles: ["prod"]
+    build:
+      context: .
+      target: runner
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: postgresql://fitmetrify:fitmetrify@postgres:5432/fitmetrify
+      NEXT_PUBLIC_APP_URL: http://localhost:3001
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  web_node_modules:
