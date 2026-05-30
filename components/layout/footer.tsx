@@ -19,18 +19,20 @@ export function Footer() {
               Transformando dados em evolução. Métricas inteligentes para
               resultados reais no seu treino, nutrição e saúde.
             </p>
-            <div className="flex gap-3">
-              {socialLinks.map((social) => (
-                <Link
-                  key={social.label}
-                  href={social.href}
-                  className="border-white/10 text-muted-foreground hover:border-primary/50 hover:text-primary flex size-10 items-center justify-center rounded-full border text-xs font-medium transition-colors"
-                  aria-label={social.label}
-                >
-                  {social.label[0]}
-                </Link>
-              ))}
-            </div>
+            {socialLinks.length > 0 && (
+              <div className="flex gap-3">
+                {socialLinks.map((social) => (
+                  <Link
+                    key={social.label}
+                    href={social.href}
+                    className="border-white/10 text-muted-foreground hover:border-primary/50 hover:text-primary flex size-10 items-center justify-center rounded-full border text-xs font-medium transition-colors"
+                    aria-label={social.label}
+                  >
+                    {social.label[0]}
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
 
           <div>

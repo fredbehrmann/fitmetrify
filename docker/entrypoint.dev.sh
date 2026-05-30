@@ -7,6 +7,6 @@ if [ ! -d "node_modules/next" ]; then
 fi
 
 npx prisma generate
-npx prisma db push
+npx prisma migrate deploy
 
 exec npm run dev

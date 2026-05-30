@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -98,5 +99,21 @@
 
   .text-tertiary {
     color: #7a8ba3;
+  }
+
+  .blog-prose {
+    @apply prose prose-lg dark:prose-invert max-w-none;
+  }
+
+  .blog-prose :where(a):not(:where([class~="not-prose"] *)) {
+    @apply text-primary no-underline hover:underline;
+  }
+
+  .blog-prose :where(h2, h3):not(:where([class~="not-prose"] *)) {
+    @apply scroll-mt-24 text-foreground;
+  }
+
+  .blog-prose :where(table):not(:where([class~="not-prose"] *)) {
+    @apply w-full;
   }
 }

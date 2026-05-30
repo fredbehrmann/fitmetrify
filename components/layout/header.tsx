@@ -148,7 +148,11 @@ export function Header() {
             active={pathname === "/"}
           />
           <CalculatorsDropdown />
-          <NavLink href="#" label="Blog" />
+          <NavLink
+            href="/blog"
+            label="Blog"
+            active={pathname.startsWith("/blog")}
+          />
         </nav>
 
         <div className="flex items-center gap-3">

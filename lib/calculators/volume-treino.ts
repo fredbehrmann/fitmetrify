@@ -27,7 +27,7 @@ export const volumeTreinoCalculator: Calculator = {
     interpretationGuide:
       "O volume total em kg aparece como resultado principal. Compare semanas semana a semana no mesmo exercício. Aumentos graduais de 5–10% costumam ser mais sustentáveis que saltos abruptos.",
     limitations:
-      "Volume bruto não mede intensidade relativa (%1RM) nem esforço percebido. Exercícios compostos e isolados não devem ser comparados apenas pelo número total. Recuperação e sono impactam tolerância ao volume.",
+      "O volume calculado (séries × reps × carga) é um indicador de trabalho mecânico total, mas não reflete a intensidade relativa ao 1RM. 3 séries de 10 reps a 60% do 1RM geram o mesmo volume bruto que 3 séries de 10 reps a 80%, mas produzem estímulos de hipertrofia muito diferentes. Para uma análise completa, combine esta calculadora com as Zonas de Carga. Referências de volume efetivo semanal: 10–20 séries por grupo muscular (Schoenfeld, 2017).",
   },
   inputs: [
     {

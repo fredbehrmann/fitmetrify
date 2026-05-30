@@ -3,6 +3,8 @@ import { Poppins } from "next/font/google";
 
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
+import { GoogleAnalytics } from "@/components/analytics/google-analytics";
+import { PostHogProvider } from "@/components/analytics/posthog-provider";
 import { absoluteUrl, getSiteUrl } from "@/lib/seo/site";
 
 import "./globals.css";
@@ -39,6 +41,8 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className="dark">
       <body className={`${poppins.variable} font-sans antialiased`}>
+        <GoogleAnalytics />
+        <PostHogProvider />
         <Header />
         <main className="min-h-screen">{children}</main>
         <Footer />

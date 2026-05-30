@@ -40,6 +40,62 @@ const SLUG_PREFILL_MAP: Record<
     age: state.age,
     restingHeartRate: state.restingHeartRate,
   }),
+  "calculadora-proteina": (state) => ({
+    weight: state.weight,
+    bodyFat: state.bodyFat,
+    leanMass: state.leanMass,
+  }),
+  "calculadora-agua": (state) => ({
+    weight: state.weight,
+    ...(state.age !== undefined
+      ? { ageGroup: state.age >= 60 ? "senior" : "adult" }
+      : {}),
+  }),
+  "calculadora-calorias-refeicao": (state) => ({
+    calories: state.targetCalories ?? state.get,
+  }),
+  "calculadora-peso-ideal": (state) => ({
+    height: state.height,
+    sex: state.sex,
+    weight: state.weight,
+    bodyFat: state.bodyFat,
+  }),
+  "calculadora-1rm": (state) => ({
+    weight: state.weight,
+    sex: state.sex,
+  }),
+};
+
+export function getVolumeTreinoPrefillSuggestion(state: CalcState): {
+  exerciseLabel?: string;
+  suggestedLoadKg?: number;
+  oneRepMax?: number;
+} | null {
+  if (state.oneRepMax === undefined) return null;
+
+  const exerciseLabel =
+    state.exercise !== undefined
+      ? (EXERCISE_LABELS[state.exercise] ?? state.exercise)
+      : undefined;
+
+  return {
+    exerciseLabel,
+    suggestedLoadKg: Math.round(state.oneRepMax * 0.7 * 2) / 2,
+    oneRepMax: state.oneRepMax,
+  };
+}
+
+const EXERCISE_LABELS: Record<string, string> = {
+  "bench-press": "Supino Reto",
+  "incline-bench": "Supino Inclinado",
+  "overhead-press": "Desenvolvimento",
+  squat: "Agachamento Livre",
+  deadlift: "Terra",
+  row: "Remada",
+  "pull-up": "Barra Fixa",
+  "leg-press": "Leg Press",
+  curl: "Rosca Direta",
+  other: "Outro",
 };
 
 const FIELD_LABELS: Record<string, string> = {
@@ -57,11 +113,18 @@ const FIELD_LABELS: Record<string, string> = {
   bodyFat: "% gordura",
   maxHeartRate: "FC máxima",
   restingHeartRate: "FC de repouso",
+  ageGroup: "Faixa etária",
 };
 
 function formatPrefillValue(name: string, value: unknown): string {
   if (name === "sex") {
     return value === "female" ? "Feminino" : "Masculino";
+  }
+  if (name === "ageGroup") {
+    return value === "senior" ? "Idoso (60 anos ou mais)" : "Adulto (até 59 anos)";
+  }
+  if (name === "exercise" && typeof value === "string") {
+    return EXERCISE_LABELS[value] ?? value;
   }
   if (typeof value === "number") {
     if (name === "tmb" || name === "dailyExpenditure" || name === "calories") {

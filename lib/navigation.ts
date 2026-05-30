@@ -7,7 +7,7 @@ import {
 export const mainNavLinks = [
   { label: "Início", href: "/" },
   { label: "Calculadoras", href: "/calculadoras" },
-  { label: "Blog", href: "#" },
+  { label: "Blog", href: "/blog" },
 ] as const;
 
 export const calculatorCategories = Object.entries(
@@ -44,8 +44,9 @@ export const footerNavigation = {
   ],
 } as const;
 
-export const socialLinks = [
-  { label: "Instagram", href: "#" },
-  { label: "Facebook", href: "#" },
-  { label: "YouTube", href: "#" },
-] as const;
+export type SocialLink = {
+  label: string;
+  href: string;
+};
+
+export const socialLinks: readonly SocialLink[] = [];

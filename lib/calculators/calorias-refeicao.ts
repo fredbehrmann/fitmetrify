@@ -33,7 +33,7 @@ export const caloriasRefeicaoCalculator: CalculatorType = {
     interpretationGuide:
       "O resultado mostra kcal, percentual e proteína estimada por refeição. Avisos aparecem quando alguma refeição fica abaixo de 25 g de proteína. Ajuste pré e pós-treino conforme sua rotina.",
     limitations:
-      "Distribuições são sugestões — turnos de trabalho, preferências e digestão individual podem exigir ajustes. Proteína estimada assume 25–30% das calorias; use a calculadora de macros para metas precisas.",
+      "A distribuição calórica sugerida é um ponto de partida, não uma regra rígida. Fatores individuais como sensibilidade insulínica, cronobiologia (preferência por refeições maiores de manhã ou à noite) e variação do apetite ao longo do dia devem guiar ajustes personalizados. Para objetivos de hipertrofia, a presença de proteína em todas as refeições (mínimo 25–40g por refeição) é mais relevante do que a distribuição calórica exata.",
   },
   inputs: [
     caloriesInput("simple"),

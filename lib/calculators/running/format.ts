@@ -31,6 +31,14 @@ export function formatSpeedKmh(speedKmh: number): string {
   });
 }
 
+export function formatSpeedMph(speedKmh: number): string {
+  const mph = speedKmh / 1.60934;
+  return mph.toLocaleString("pt-BR", {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  });
+}
+
 export function formatDistanceKm(distanceKm: number): string {
   return distanceKm.toLocaleString("pt-BR", {
     minimumFractionDigits: distanceKm < 10 ? 1 : 0,

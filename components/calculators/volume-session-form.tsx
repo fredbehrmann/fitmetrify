@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 
+import { PrefillImportBanner } from "@/components/calculators/prefill-import-banner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +14,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { trackEvent } from "@/lib/analytics";
+import { useCalcStore } from "@/lib/calc-context/store";
+import { getVolumeTreinoPrefillSuggestion } from "@/lib/calculators/prefill-from-context";
 import {
   MUSCLE_GROUP_OPTIONS,
   type MuscleGroupId,
@@ -20,10 +24,13 @@ import {
 } from "@/lib/calculators/volume-treino/constants";
 
 type VolumeSessionFormProps = {
+  calcSlug: string;
   onSubmit: (values: Record<string, unknown>) => void;
 };
 
-function createEmptyExercise(): SessionExercise {
+function createEmptyExercise(
+  overrides?: Partial<SessionExercise>
+): SessionExercise {
   return {
     id: crypto.randomUUID(),
     name: "",
@@ -31,13 +38,78 @@ function createEmptyExercise(): SessionExercise {
     sets: 3,
     reps: 10,
     loadKg: 20,
+    ...overrides,
   };
 }
 
-export function VolumeSessionForm({ onSubmit }: VolumeSessionFormProps) {
-  const [exercises, setExercises] = useState<SessionExercise[]>([
-    createEmptyExercise(),
+export function VolumeSessionForm({
+  calcSlug,
+  onSubmit,
+}: VolumeSessionFormProps) {
+  const calcState = useCalcStore((store) => store.state);
+  const hasTrackedStart = useRef(false);
+  const suggestion = useMemo(
+    () => getVolumeTreinoPrefillSuggestion(calcState),
+    [calcState]
+  );
+
+  const [exercises, setExercises] = useState<SessionExercise[]>(() => [
+    createEmptyExercise(
+      suggestion
+        ? {
+            name: suggestion.exerciseLabel ?? "",
+            loadKg: suggestion.suggestedLoadKg ?? 20,
+          }
+        : undefined
+    ),
   ]);
+  const [prefillApplied, setPrefillApplied] = useState(false);
+
+  useEffect(() => {
+    if (prefillApplied || !suggestion) return;
+
+    setExercises((current) => {
+      const first = current[0];
+      if (!first || first.name.trim()) return current;
+
+      return [
+        {
+          ...first,
+          name: suggestion.exerciseLabel ?? first.name,
+          loadKg: suggestion.suggestedLoadKg ?? first.loadKg,
+        },
+        ...current.slice(1),
+      ];
+    });
+    setPrefillApplied(true);
+  }, [prefillApplied, suggestion]);
+
+  const importItems = useMemo(() => {
+    if (!suggestion?.oneRepMax) return [];
+
+    const items = [
+      {
+        label: "1RM estimado",
+        value: `${suggestion.oneRepMax} kg`,
+      },
+    ];
+
+    if (suggestion.suggestedLoadKg !== undefined) {
+      items.push({
+        label: "Carga sugerida (~70%)",
+        value: `${suggestion.suggestedLoadKg} kg`,
+      });
+    }
+
+    if (suggestion.exerciseLabel) {
+      items.push({
+        label: "Exercício",
+        value: suggestion.exerciseLabel,
+      });
+    }
+
+    return items;
+  }, [suggestion]);
 
   const updateExercise = (
     id: string,
@@ -56,6 +128,12 @@ export function VolumeSessionForm({ onSubmit }: VolumeSessionFormProps) {
     );
   };
 
+  const handleFirstInteraction = () => {
+    if (hasTrackedStart.current) return;
+    hasTrackedStart.current = true;
+    trackEvent("calc_started", { calc_slug: calcSlug });
+  };
+
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     const valid = exercises.filter(
@@ -69,7 +147,13 @@ export function VolumeSessionForm({ onSubmit }: VolumeSessionFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form
+      onSubmit={handleSubmit}
+      onFocusCapture={handleFirstInteraction}
+      className="space-y-6"
+    >
+      <PrefillImportBanner items={importItems} />
+
       {exercises.map((exercise, index) => (
         <div
           key={exercise.id}

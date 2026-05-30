@@ -15,8 +15,13 @@ export type CalcState = {
   bmi?: number;
   idealWeightMin?: number;
   idealWeightMax?: number;
+  idealWeightCentral?: number;
   exercise?: string;
   oneRepMax?: number;
+  dailyProtein?: number;
+  proteinPerMeal?: number;
+  dailyWaterLiters?: number;
+  caloriesPerMeal?: number[];
 };
 
 export type CalcStore = {

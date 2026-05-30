@@ -27,7 +27,7 @@ export const paceVelocidadeCalculator: Calculator = {
     interpretationGuide:
       "Use km/h para esteiras e planilhas; use pace para corrida de rua. A tabela de referência mostra equivalências comuns de 4 a 20 km/h.",
     limitations:
-      "Conversão assume ritmo constante. Em intervalados, calcule cada segmento separadamente.",
+      "A conversão é matemática e não considera inclinação do terreno. Em esteiras, a inclinação de 1% é o ajuste padrão para simular o esforço ao ar livre — uma velocidade de 10 km/h na esteira plana equivale a aproximadamente 9,5 km/h em solo externo plano. Ritmos acima de 20 km/h (pace abaixo de 3:00 min/km) são referências para atletas de elite e podem não ser sustentáveis por longos períodos.",
   },
   inputs: [
     selectInput("simple", {

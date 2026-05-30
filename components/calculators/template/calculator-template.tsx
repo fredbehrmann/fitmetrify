@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { GastoInlineTmb } from "@/components/calculators/gasto-inline-tmb";
 import { CalculatorForm } from "@/components/calculators/template/calculator-form";
@@ -11,16 +11,22 @@ import { UnitToggle } from "@/components/ui/unit-toggle";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { extractCalcStatePatch } from "@/lib/calc-context/sync-from-result";
 import { useCalcStore } from "@/lib/calc-context/store";
+import { trackEvent } from "@/lib/analytics";
 import { transformBodyMetricInputs } from "@/lib/calculators/body-metrics/transform-inputs";
+import { getAguaInputs } from "@/lib/calculators/agua/form-inputs";
 import { getCalculatorEngine } from "@/lib/calculators/engines";
 import type { CalculatorResult } from "@/lib/calculators/engines/types";
-import {
-  getImcImperialInputs,
-  getImcMetricInputs,
-} from "@/lib/calculators/imc/form-inputs";
+import { getImcInputs } from "@/lib/calculators/imc/form-inputs";
+import { getMacrosInputs } from "@/lib/calculators/macros/form-inputs";
 import { getPaceInputs } from "@/lib/calculators/pace/form-inputs";
 import { getPercentualGorduraInputs } from "@/lib/calculators/percentual-gordura/form-inputs";
 import { getPesoIdealInputs } from "@/lib/calculators/peso-ideal/form-inputs";
+import { getPrevisorTempoInputs } from "@/lib/calculators/previsor-tempo/form-inputs";
+import { getProteinaInputs } from "@/lib/calculators/proteina/form-inputs";
+import {
+  attachDistanceUnit,
+  transformPrevisorDistanceInputs,
+} from "@/lib/calculators/running/transform-distance-inputs";
 import { getTmbInputs } from "@/lib/calculators/tmb/form-inputs";
 import { enrichCalculatorResult } from "@/lib/calculators/recommendations/enrich-result";
 import {
@@ -42,6 +48,16 @@ const BODY_METRIC_SLUGS = new Set([
   "calculadora-gasto-calorico",
 ]);
 
+const WEIGHT_TOGGLE_SLUGS = new Set([
+  "calculadora-proteina",
+  "calculadora-agua",
+]);
+
+const DISTANCE_TOGGLE_SLUGS = new Set([
+  "calculadora-pace",
+  "calculadora-previsor-tempo",
+]);
+
 function UnitToggleHeader({
   unitSystem,
   onChange,
@@ -57,18 +73,39 @@ function UnitToggleHeader({
   );
 }
 
+function DistanceToggleHeader({
+  distanceUnit,
+  onChange,
+}: {
+  distanceUnit: DistanceUnit;
+  onChange: (value: DistanceUnit) => void;
+}) {
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <p className="text-muted-foreground text-sm">Unidade de distância</p>
+      <DistanceUnitToggle value={distanceUnit} onChange={onChange} />
+    </div>
+  );
+}
+
 export function CalculatorTemplate({ calculator }: CalculatorTemplateProps) {
   const showTabs = calculator.simpleMode && calculator.advancedMode;
   const defaultMode: InputMode = calculator.simpleMode ? "simple" : "advanced";
-  const isImc = calculator.slug === "calculadora-imc";
-  const isPace = calculator.slug === "calculadora-pace";
-  const isPrevisor = calculator.slug === "calculadora-previsor-tempo";
-  const isGastoCalorico = calculator.slug === "calculadora-gasto-calorico";
-  const isVolumeTreino = calculator.slug === "calculadora-volume-treino";
-  const isTmb = calculator.slug === "calculadora-tmb";
-  const isPesoIdeal = calculator.slug === "calculadora-peso-ideal";
-  const isPercentualGordura = calculator.slug === "calculadora-percentual-gordura";
-  const usesBodyMetrics = BODY_METRIC_SLUGS.has(calculator.slug);
+  const slug = calculator.slug;
+  const isImc = slug === "calculadora-imc";
+  const isPace = slug === "calculadora-pace";
+  const isPrevisor = slug === "calculadora-previsor-tempo";
+  const isGastoCalorico = slug === "calculadora-gasto-calorico";
+  const isVolumeTreino = slug === "calculadora-volume-treino";
+  const isTmb = slug === "calculadora-tmb";
+  const isPesoIdeal = slug === "calculadora-peso-ideal";
+  const isPercentualGordura = slug === "calculadora-percentual-gordura";
+  const isProteina = slug === "calculadora-proteina";
+  const isAgua = slug === "calculadora-agua";
+  const isMacros = slug === "calculadora-macros";
+  const usesBodyMetrics = BODY_METRIC_SLUGS.has(slug);
+  const usesWeightToggle = WEIGHT_TOGGLE_SLUGS.has(slug);
+  const usesDistanceToggle = DISTANCE_TOGGLE_SLUGS.has(slug);
 
   const [mode, setMode] = useState<InputMode>(defaultMode);
   const [unitSystem, setUnitSystem] = useState<UnitSystem>("metric");
@@ -81,54 +118,111 @@ export function CalculatorTemplate({ calculator }: CalculatorTemplateProps) {
   const calcState = useCalcStore((store) => store.state);
   const updateCalcStore = useCalcStore((store) => store.update);
 
+  const handleUnitSystemChange = useCallback(
+    (next: UnitSystem) => {
+      if (next !== unitSystem) {
+        trackEvent("unit_toggle", {
+          calc_slug: slug,
+          unit_from: unitSystem,
+          unit_to: next,
+        });
+      }
+      setUnitSystem(next);
+    },
+    [slug, unitSystem]
+  );
+
+  const handleDistanceUnitChange = useCallback(
+    (next: DistanceUnit) => {
+      if (next !== distanceUnit) {
+        trackEvent("unit_toggle", {
+          calc_slug: slug,
+          unit_from: distanceUnit,
+          unit_to: next,
+        });
+      }
+      setDistanceUnit(next);
+    },
+    [slug, distanceUnit]
+  );
+
   const simpleInputs = getSimpleInputs(calculator);
   const advancedInputs = getAdvancedInputs(calculator);
 
-  const activeInputs = useMemo(() => {
-    if (isImc && mode === "simple") {
-      return unitSystem === "metric"
-        ? getImcMetricInputs("simple")
-        : getImcImperialInputs("simple");
-    }
-    if (isTmb) {
-      return getTmbInputs(mode, unitSystem);
-    }
-    if (isPesoIdeal) {
-      return getPesoIdealInputs(mode, unitSystem);
-    }
-    if (isPercentualGordura) {
-      return getPercentualGorduraInputs(mode, unitSystem);
-    }
-    if (isPace) {
-      return getPaceInputs(mode, distanceUnit);
-    }
-    return mode === "simple" ? simpleInputs : advancedInputs;
-  }, [
-    isImc,
-    isTmb,
-    isPesoIdeal,
-    isPercentualGordura,
-    isPace,
-    mode,
-    unitSystem,
-    distanceUnit,
-    simpleInputs,
-    advancedInputs,
-  ]);
+  const resolveInputs = useCallback(
+    (inputMode: InputMode) => {
+      if (isImc) return getImcInputs(inputMode, unitSystem);
+      if (isTmb) return getTmbInputs(inputMode, unitSystem);
+      if (isPesoIdeal) return getPesoIdealInputs(inputMode, unitSystem);
+      if (isPercentualGordura) {
+        return getPercentualGorduraInputs(inputMode, unitSystem);
+      }
+      if (isProteina) return getProteinaInputs(inputMode, unitSystem);
+      if (isAgua) return getAguaInputs(inputMode, unitSystem);
+      if (isMacros) return getMacrosInputs(inputMode, unitSystem);
+      if (isPace) return getPaceInputs(inputMode, distanceUnit);
+      if (isPrevisor) return getPrevisorTempoInputs(inputMode, distanceUnit);
+      return inputMode === "simple" ? simpleInputs : advancedInputs;
+    },
+    [
+      isImc,
+      isTmb,
+      isPesoIdeal,
+      isPercentualGordura,
+      isProteina,
+      isAgua,
+      isMacros,
+      isPace,
+      isPrevisor,
+      unitSystem,
+      distanceUnit,
+      simpleInputs,
+      advancedInputs,
+    ]
+  );
+
+  const activeInputs = useMemo(
+    () => resolveInputs(mode),
+    [resolveInputs, mode]
+  );
 
   const transformValues = useMemo(() => {
-    if (isPace) {
-      return (values: Record<string, unknown>) => ({ ...values, distanceUnit });
+    if (isPrevisor) {
+      return (values: Record<string, unknown>) =>
+        transformPrevisorDistanceInputs(values, distanceUnit);
     }
-    if (usesBodyMetrics) {
+    if (isPace) {
+      return (values: Record<string, unknown>) =>
+        attachDistanceUnit(values, distanceUnit);
+    }
+    if (isMacros) {
+      return (values: Record<string, unknown>) => {
+        const usesWeight =
+          mode === "advanced" || values.inputMode === "gramsPerKg";
+        if (usesWeight && unitSystem === "imperial") {
+          return transformBodyMetricInputs(values, unitSystem);
+        }
+        return values;
+      };
+    }
+    if (usesBodyMetrics || usesWeightToggle) {
       return (values: Record<string, unknown>) =>
         transformBodyMetricInputs(values, unitSystem);
     }
     return undefined;
-  }, [isPace, usesBodyMetrics, distanceUnit, unitSystem]);
+  }, [
+    isPrevisor,
+    isPace,
+    isMacros,
+    mode,
+    usesBodyMetrics,
+    usesWeightToggle,
+    distanceUnit,
+    unitSystem,
+  ]);
 
   const handleSubmit = (values: Record<string, unknown>) => {
-    const engine = getCalculatorEngine(calculator.slug);
+    const engine = getCalculatorEngine(slug);
     const calculateFn =
       mode === "simple" ? engine?.calculateSimple : engine?.calculateAdvanced;
     const payload = transformValues ? transformValues(values) : values;
@@ -136,11 +230,12 @@ export function CalculatorTemplate({ calculator }: CalculatorTemplateProps) {
     const calculated = calculateFn?.(payload) ?? null;
 
     if (calculated) {
-      const enriched = enrichCalculatorResult(calculator.slug, calculated);
-      const patch = extractCalcStatePatch(calculator.slug, payload, enriched);
+      const enriched = enrichCalculatorResult(slug, calculated);
+      const patch = extractCalcStatePatch(slug, payload, enriched);
       if (Object.keys(patch).length > 0) {
         updateCalcStore(patch);
       }
+      trackEvent("calc_completed", { calc_slug: slug, mode });
       setResult(enriched);
       setPanelState("result");
       return;
@@ -151,11 +246,12 @@ export function CalculatorTemplate({ calculator }: CalculatorTemplateProps) {
   };
 
   const handleVolumeSubmit = (values: Record<string, unknown>) => {
-    const engine = getCalculatorEngine(calculator.slug);
+    const engine = getCalculatorEngine(slug);
     const calculated = engine?.calculateSimple?.(values) ?? null;
 
     if (calculated) {
-      const enriched = enrichCalculatorResult(calculator.slug, calculated);
+      const enriched = enrichCalculatorResult(slug, calculated);
+      trackEvent("calc_completed", { calc_slug: slug, mode: "simple" });
       setResult(enriched);
       setPanelState("result");
       return;
@@ -166,19 +262,40 @@ export function CalculatorTemplate({ calculator }: CalculatorTemplateProps) {
   };
 
   const handleModeChange = (value: string) => {
+    if (value === "advanced") {
+      trackEvent("advanced_mode", { calc_slug: slug });
+    }
     setMode(value as InputMode);
     setResult(null);
     setPanelState("initial");
   };
 
-  const headerSlot = isPace ? (
-    <div className="flex flex-wrap items-center justify-between gap-3">
-      <p className="text-muted-foreground text-sm">Unidade de distância</p>
-      <DistanceUnitToggle value={distanceUnit} onChange={setDistanceUnit} />
-    </div>
-  ) : usesBodyMetrics ? (
-    <UnitToggleHeader unitSystem={unitSystem} onChange={setUnitSystem} />
+  const staticHeaderSlot = usesDistanceToggle ? (
+    <DistanceToggleHeader
+      distanceUnit={distanceUnit}
+      onChange={handleDistanceUnitChange}
+    />
+  ) : usesBodyMetrics || usesWeightToggle ? (
+    <UnitToggleHeader
+      unitSystem={unitSystem}
+      onChange={handleUnitSystemChange}
+    />
   ) : undefined;
+
+  const macrosHeaderSlot = useCallback(
+    (watchedValues: Record<string, unknown>) => {
+      const showToggle =
+        mode === "advanced" || watchedValues.inputMode === "gramsPerKg";
+      if (!showToggle) return null;
+      return (
+        <UnitToggleHeader
+          unitSystem={unitSystem}
+          onChange={handleUnitSystemChange}
+        />
+      );
+    },
+    [mode, unitSystem, handleUnitSystemChange]
+  );
 
   const gastoFooterSlot = isGastoCalorico ? (
     <GastoInlineTmb
@@ -190,18 +307,22 @@ export function CalculatorTemplate({ calculator }: CalculatorTemplateProps) {
   const formSection = isVolumeTreino ? (
     <div className="glass-card p-6 md:p-8">
       <h2 className="mb-6 text-xl font-semibold">Ferramenta de cálculo</h2>
-      <VolumeSessionForm onSubmit={handleVolumeSubmit} />
+      <VolumeSessionForm
+        calcSlug={slug}
+        onSubmit={handleVolumeSubmit}
+      />
     </div>
   ) : (
     <div className="glass-card p-6 md:p-8">
       <h2 className="mb-6 text-xl font-semibold">Ferramenta de cálculo</h2>
       <CalculatorForm
-        slug={calculator.slug}
+        slug={slug}
         key={`${mode}-${unitSystem}-${distanceUnit}`}
         inputs={activeInputs}
         mode={mode}
         onSubmit={handleSubmit}
-        headerSlot={headerSlot}
+        headerSlot={isMacros ? undefined : staticHeaderSlot}
+        renderHeaderSlot={isMacros ? macrosHeaderSlot : undefined}
         footerSlot={gastoFooterSlot}
         transformValues={transformValues}
         showPrevisorPresets={isPrevisor}
@@ -211,21 +332,13 @@ export function CalculatorTemplate({ calculator }: CalculatorTemplateProps) {
 
   const resultPanel = (
     <CalculatorResultPanel
-      slug={calculator.slug}
+      slug={slug}
       state={panelState}
       result={result}
     />
   );
 
-  const advancedFormInputs = isPace
-    ? getPaceInputs("advanced", distanceUnit)
-    : isTmb
-      ? getTmbInputs("advanced", unitSystem)
-      : isPesoIdeal
-        ? getPesoIdealInputs("advanced", unitSystem)
-        : isPercentualGordura
-          ? getPercentualGorduraInputs("advanced", unitSystem)
-          : advancedInputs;
+  const advancedFormInputs = resolveInputs("advanced");
 
   return (
     <section className="mb-16">
@@ -249,12 +362,17 @@ export function CalculatorTemplate({ calculator }: CalculatorTemplateProps) {
                     Ferramenta de cálculo
                   </h2>
                   <CalculatorForm
-                    slug={calculator.slug}
+                    slug={slug}
                     key={`advanced-${unitSystem}-${distanceUnit}`}
                     inputs={advancedFormInputs}
                     mode="advanced"
                     onSubmit={handleSubmit}
-                    headerSlot={headerSlot}
+                    headerSlot={
+                      isMacros ? undefined : staticHeaderSlot
+                    }
+                    renderHeaderSlot={
+                      isMacros ? macrosHeaderSlot : undefined
+                    }
                     footerSlot={isGastoCalorico ? gastoFooterSlot : undefined}
                     transformValues={transformValues}
                     showPrevisorPresets={isPrevisor}

@@ -32,7 +32,7 @@ export const paceCalculator: Calculator = {
     interpretationGuide:
       "O pace principal aparece no formato min:seg por km. KPIs incluem tabela de tempos alvo para 5K, 10K, meia e maratona. No avançado, informe FC máxima ou idade para estimar zonas cardíacas.",
     limitations:
-      "Terreno, vento, altitude e paradas não entram no cálculo. Pace médio de prova com largada lenta difere do pace de treino contínuo.",
+      "A calculadora assume pace constante ao longo de toda a distância, o que raramente ocorre em condições reais. Variações de terreno (subidas, descidas), temperatura acima de 25°C e vento contrário de 30+ km/h podem reduzir o pace em 3–8%. Em provas com largada em grupo, o pace dos primeiros quilômetros costuma ser mais lento que o previsto. Use o resultado como referência de treinamento, não como previsão exata de prova.",
   },
   inputs: [
     numberInput("simple", {

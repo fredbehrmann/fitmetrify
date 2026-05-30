@@ -162,7 +162,7 @@ export function CalculatorResultPanel({
         <ResultActionButtons actions={result.actions} />
       )}
 
-      {nextStep && <NextStepBanner config={nextStep} />}
+      {nextStep && <NextStepBanner fromSlug={slug} config={nextStep} />}
 
       {result.relatedSlugs && result.relatedSlugs.length > 0 && (
         <ResultRelatedLinks slugs={result.relatedSlugs} />

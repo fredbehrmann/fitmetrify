@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 
+import { ContactForm } from "@/components/contact/contact-form";
 import { InstitutionalPageLayout } from "@/components/layout/institutional-page-layout";
+import { LEGAL } from "@/lib/site/legal";
 import { buildHubMetadata } from "@/lib/seo/build-calculator-metadata";
 
 export const metadata: Metadata = buildHubMetadata(
@@ -13,13 +15,19 @@ export default function ContatoPage() {
   return (
     <InstitutionalPageLayout
       title="Contato"
-      intro="Quer falar conosco? Esta página está em construção."
+      intro="Envie sua mensagem. Respondemos dúvidas, sugestões, reportes de erro e propostas de parceria."
     >
       <p>
-        Em breve disponibilizaremos um formulário de contato e canais oficiais
-        de suporte. Enquanto isso, acompanhe nossas redes sociais pelo rodapé do
-        site.
+        Você também pode escrever diretamente para{" "}
+        <a
+          href={`mailto:${LEGAL.contactEmail}`}
+          className="text-primary font-medium hover:underline"
+        >
+          {LEGAL.contactEmail}
+        </a>
+        .
       </p>
+      <ContactForm />
     </InstitutionalPageLayout>
   );
 }

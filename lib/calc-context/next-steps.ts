@@ -55,6 +55,41 @@ export const NEXT_STEPS: Record<string, NextStepConfig> = {
     href: "/calculadora-pace",
     dadosPassados: ["maxHeartRate", "idade"],
   },
+  "calculadora-proteina": {
+    titulo: "Distribua sua proteína nas refeições",
+    descricao:
+      "Você calculou sua meta de proteína. Agora veja como distribuí-la ao longo do dia.",
+    href: "/calculadora-calorias-refeicao",
+    dadosPassados: ["proteína diária"],
+  },
+  "calculadora-macros": {
+    titulo: "Distribua seus macros por refeição",
+    descricao:
+      "Com seus macros definidos, veja como encaixá-los em cada refeição do dia.",
+    href: "/calculadora-calorias-refeicao",
+    dadosPassados: ["calorias alvo"],
+  },
+  "calculadora-1rm": {
+    titulo: "Calcule suas cargas de treino",
+    descricao:
+      "Seu 1RM estimado está pronto. Use-o para definir as cargas ideais por objetivo.",
+    href: "/calculadora-zonas-carga",
+    dadosPassados: ["1RM", "exercício"],
+  },
+  "calculadora-zonas-carga": {
+    titulo: "Planeje o volume semanal",
+    descricao:
+      "Com as cargas definidas, calcule o volume total do seu treino.",
+    href: "/calculadora-volume-treino",
+    dadosPassados: ["1RM", "exercício"],
+  },
+  "calculadora-pace": {
+    titulo: "Projete seu tempo em outras distâncias",
+    descricao:
+      "Com este pace, quanto tempo você levaria em uma meia maratona ou maratona?",
+    href: "/calculadora-previsor-tempo",
+    dadosPassados: ["pace"],
+  },
 };
 
 export function getNextStepForSlug(slug: string): NextStepConfig | null {

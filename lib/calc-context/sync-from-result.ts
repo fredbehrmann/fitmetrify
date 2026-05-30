@@ -15,9 +15,34 @@ function parseSex(value: unknown): Sex | undefined {
 }
 
 function parsePrimaryNumber(result: CalculatorResult): number | null {
-  const parsed = Number(String(result.primaryValue).replace(/\./g, "").replace(",", "."));
+  const parsed = Number(
+    String(result.primaryValue).replace(/\./g, "").replace(",", ".")
+  );
   if (!Number.isNaN(parsed)) return parsed;
   return null;
+}
+
+function parseLitersFromPrimary(value: string): number | null {
+  const normalized = value.replace(/[^\d,.-]/g, "").replace(",", ".");
+  const parsed = Number(normalized);
+  if (Number.isNaN(parsed)) return null;
+  return parsed;
+}
+
+function parseKpiNumber(kpi: { value: string } | undefined): number | null {
+  if (!kpi) return null;
+  const parsed = Number(kpi.value.replace(/[^\d,.-]/g, "").replace(",", "."));
+  if (Number.isNaN(parsed)) return null;
+  return parsed;
+}
+
+function parseKcalFromKpi(kpi: { value: string } | undefined): number | null {
+  if (!kpi) return null;
+  const match = kpi.value.match(/[\d.,]+/);
+  if (!match) return null;
+  const parsed = Number(match[0].replace(",", "."));
+  if (Number.isNaN(parsed)) return null;
+  return Math.round(parsed);
 }
 
 export function extractCalcStatePatch(
@@ -86,6 +111,66 @@ export function extractCalcStatePatch(
       if (exercise) patch.exercise = exercise;
       break;
     }
+    case "calculadora-proteina": {
+      const weight = parseNumber(inputs.weight);
+      const dailyProtein = parsePrimaryNumber(result);
+      const proteinPerMealKpi = result.kpis?.find((k) => k.label === "Por refeição");
+
+      if (weight !== null) patch.weight = weight;
+      if (dailyProtein !== null) patch.dailyProtein = Math.round(dailyProtein);
+      const proteinPerMeal = parseKpiNumber(proteinPerMealKpi);
+      if (proteinPerMeal !== null) patch.proteinPerMeal = Math.round(proteinPerMeal);
+      break;
+    }
+    case "calculadora-agua": {
+      const weight = parseNumber(inputs.weight);
+      const liters = parseLitersFromPrimary(String(result.primaryValue));
+
+      if (weight !== null) patch.weight = weight;
+      if (liters !== null) patch.dailyWaterLiters = liters;
+      break;
+    }
+    case "calculadora-calorias-refeicao": {
+      const calories = parseNumber(inputs.calories);
+      if (calories !== null) patch.targetCalories = Math.round(calories);
+
+      const mealCalories =
+        result.kpis
+          ?.map((kpi) => parseKcalFromKpi(kpi))
+          .filter((value): value is number => value !== null) ?? [];
+
+      if (mealCalories.length > 0) patch.caloriesPerMeal = mealCalories;
+      break;
+    }
+    case "calculadora-peso-ideal": {
+      const weight = parseNumber(inputs.weight);
+      const height = parseNumber(inputs.height);
+      const sex = parseSex(inputs.sex);
+      const bodyFat = parseNumber(inputs.bodyFat);
+      const central = parsePrimaryNumber(result);
+
+      if (weight !== null) patch.weight = weight;
+      if (height !== null) patch.height = height;
+      if (sex) patch.sex = sex;
+      if (bodyFat !== null) patch.bodyFat = bodyFat;
+      if (central !== null) patch.idealWeightCentral = central;
+
+      const omsRangeKpi = result.kpis?.find((k) =>
+        k.label.toLowerCase().includes("oms")
+      );
+      if (omsRangeKpi?.value) {
+        const rangeMatch = omsRangeKpi.value.match(
+          /([\d.,]+)\s*[–-]\s*([\d.,]+)/
+        );
+        if (rangeMatch) {
+          const min = Number(rangeMatch[1].replace(",", "."));
+          const max = Number(rangeMatch[2].replace(",", "."));
+          if (!Number.isNaN(min)) patch.idealWeightMin = min;
+          if (!Number.isNaN(max)) patch.idealWeightMax = max;
+        }
+      }
+      break;
+    }
     case "calculadora-percentual-gordura": {
       const weight = parseNumber(inputs.weight);
       const height = parseNumber(inputs.height);
@@ -101,7 +186,7 @@ export function extractCalcStatePatch(
         patch.bodyFat = bodyFat;
         if (weight !== null) {
           patch.leanMass =
-            Math.round((weight * (1 - bodyFat / 100)) * 10) / 10;
+            Math.round(weight * (1 - bodyFat / 100) * 10) / 10;
         }
       }
       break;
@@ -143,6 +228,12 @@ export function paramsToCalcState(
     "maxHeartRate",
     "restingHeartRate",
     "targetCalories",
+    "idealWeightCentral",
+    "idealWeightMin",
+    "idealWeightMax",
+    "dailyProtein",
+    "proteinPerMeal",
+    "dailyWaterLiters",
   ] as const;
 
   for (const key of numericKeys) {

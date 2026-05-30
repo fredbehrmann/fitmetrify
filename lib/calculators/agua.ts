@@ -33,7 +33,7 @@ export const aguaCalculator: Calculator = {
     interpretationGuide:
       "O resultado principal indica quanta água beber por dia. KPIs detalham componentes do cálculo quando aplicável. Distribua a ingestão ao longo do dia e aumente em treinos longos ou calor.",
     limitations:
-      "Necessidades variam com dieta (alimentos úmidos), altitude e condições médicas. Sede e cor da urina são indicadores práticos complementares. Hiperidratação excessiva também pode ser prejudicial em contextos clínicos específicos.",
+      "A base de 35 ml/kg é uma estimativa populacional e pode variar ±30% por fatores individuais: altitude elevada aumenta as necessidades em até 500 ml/dia; dietas ricas em sódio ou proteína aumentam a necessidade de eliminação renal; alimentos com alto teor de água (frutas, vegetais) contribuem com 20–30% da hidratação diária. Sintomas como urina escura, boca seca e dor de cabeça são indicadores práticos mais confiáveis do que a fórmula isolada.",
   },
   inputs: [
     weightInput("simple"),

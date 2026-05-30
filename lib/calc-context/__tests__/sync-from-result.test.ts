@@ -113,4 +113,71 @@ describe("extractCalcStatePatch", () => {
       restingHeartRate: 60,
     });
   });
+
+  it("extracts proteina patch", () => {
+    const patch = extractCalcStatePatch(
+      "calculadora-proteina",
+      { weight: 75 },
+      {
+        primaryValue: "150",
+        interpretation: "",
+        kpis: [{ label: "Por refeição", value: "38", unit: "g" }],
+      }
+    );
+
+    expect(patch.dailyProtein).toBe(150);
+    expect(patch.proteinPerMeal).toBe(38);
+    expect(patch.weight).toBe(75);
+  });
+
+  it("extracts agua patch", () => {
+    const patch = extractCalcStatePatch(
+      "calculadora-agua",
+      { weight: 70 },
+      {
+        primaryValue: "2,6",
+        primaryUnit: "L/dia",
+        interpretation: "",
+      }
+    );
+
+    expect(patch.dailyWaterLiters).toBe(2.6);
+    expect(patch.weight).toBe(70);
+  });
+
+  it("extracts calorias refeicao patch", () => {
+    const patch = extractCalcStatePatch(
+      "calculadora-calorias-refeicao",
+      { calories: 2000 },
+      {
+        primaryValue: "500",
+        interpretation: "",
+        kpis: [
+          { label: "Café da manhã", value: "500", unit: "kcal" },
+          { label: "Almoço", value: "700", unit: "kcal" },
+        ],
+      }
+    );
+
+    expect(patch.targetCalories).toBe(2000);
+    expect(patch.caloriesPerMeal).toEqual([500, 700]);
+  });
+
+  it("extracts peso ideal patch", () => {
+    const patch = extractCalcStatePatch(
+      "calculadora-peso-ideal",
+      { height: 175, sex: "male" },
+      {
+        primaryValue: "72,5",
+        interpretation: "",
+        kpis: [
+          { label: "Faixa OMS", value: "56,7–76,6", unit: "kg" },
+        ],
+      }
+    );
+
+    expect(patch.idealWeightCentral).toBeCloseTo(72.5, 1);
+    expect(patch.idealWeightMin).toBeCloseTo(56.7, 1);
+    expect(patch.idealWeightMax).toBeCloseTo(76.6, 1);
+  });
 });

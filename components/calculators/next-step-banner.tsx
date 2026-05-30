@@ -1,16 +1,32 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { trackEvent } from "@/lib/analytics";
 import type { NextStepConfig } from "@/lib/calc-context/next-steps";
 
 type NextStepBannerProps = {
+  fromSlug: string;
   config: NextStepConfig;
 };
 
-export function NextStepBanner({ config }: NextStepBannerProps) {
+function slugFromHref(href: string): string {
+  return href.replace(/^\//, "");
+}
+
+export function NextStepBanner({ fromSlug, config }: NextStepBannerProps) {
+  const router = useRouter();
+
+  const handleContinue = () => {
+    trackEvent("journey_step", {
+      from_calc: fromSlug,
+      to_calc: slugFromHref(config.href),
+    });
+    router.push(config.href);
+  };
+
   return (
     <div className="rounded-xl border border-primary/30 bg-primary/10 p-4">
       <p className="text-primary mb-1 text-sm font-semibold">Próximo passo</p>
@@ -21,11 +37,9 @@ export function NextStepBanner({ config }: NextStepBannerProps) {
           Serão pré-preenchidos: {config.dadosPassados.join(", ")}
         </p>
       )}
-      <Button asChild variant="default" size="sm">
-        <Link href={config.href}>
-          Continuar jornada
-          <ArrowRight className="size-4" />
-        </Link>
+      <Button type="button" variant="default" size="sm" onClick={handleContinue}>
+        Continuar jornada
+        <ArrowRight className="size-4" />
       </Button>
     </div>
   );

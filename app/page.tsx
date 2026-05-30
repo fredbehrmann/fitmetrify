@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
 import { HeroSection } from "@/components/home/hero-section";
 import { CalculatorSearch } from "@/components/home/calculator-search";
@@ -9,6 +10,7 @@ import { PortalAboutSection } from "@/components/home/portal-about-section";
 import { SeoLinksSection } from "@/components/home/seo-links-section";
 import { HealthTipsSection } from "@/components/home/health-tips-section";
 import { BottomCtaSection } from "@/components/home/bottom-cta-section";
+import { NewsletterConfirmBanner } from "@/components/home/newsletter-confirm-banner";
 import { buildHubMetadata } from "@/lib/seo/build-calculator-metadata";
 
 export const metadata: Metadata = buildHubMetadata(
@@ -20,6 +22,9 @@ export const metadata: Metadata = buildHubMetadata(
 export default function HomePage() {
   return (
     <>
+      <Suspense fallback={null}>
+        <NewsletterConfirmBanner />
+      </Suspense>
       <HeroSection />
       <CalculatorSearch />
       <CategoryNav />

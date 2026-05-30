@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Calculator } from "lucide-react";
@@ -11,6 +11,7 @@ import { CalculatorField } from "@/components/calculators/template/calculator-fi
 import { PrevisorDistancePresets } from "@/components/calculators/distance-preset-buttons";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
+import { trackEvent } from "@/lib/analytics";
 import { useCalcStore, resetCalcStore } from "@/lib/calc-context/store";
 import {
   getPrefillImportItems,
@@ -30,6 +31,7 @@ type CalculatorFormProps = {
   mode: InputMode;
   onSubmit: (values: Record<string, unknown>) => void;
   headerSlot?: React.ReactNode;
+  renderHeaderSlot?: (watchedValues: Record<string, unknown>) => React.ReactNode;
   footerSlot?: React.ReactNode;
   transformValues?: (values: Record<string, unknown>) => Record<string, unknown>;
   showPrevisorPresets?: boolean;
@@ -41,6 +43,7 @@ export function CalculatorForm({
   mode,
   onSubmit,
   headerSlot,
+  renderHeaderSlot,
   footerSlot,
   transformValues,
   showPrevisorPresets,
@@ -73,6 +76,13 @@ export function CalculatorForm({
 
   const watchedValues = form.watch();
   const warnings = getInputWarnings(inputs, watchedValues);
+  const hasTrackedStart = useRef(false);
+
+  const handleFirstInteraction = () => {
+    if (hasTrackedStart.current) return;
+    hasTrackedStart.current = true;
+    trackEvent("calc_started", { calc_slug: slug });
+  };
 
   const handleSubmit = form.handleSubmit((values) => {
     onSubmit(transformValues ? transformValues(values) : values);
@@ -80,8 +90,12 @@ export function CalculatorForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={handleSubmit} className="space-y-5">
-        {headerSlot}
+      <form
+        onSubmit={handleSubmit}
+        onFocusCapture={handleFirstInteraction}
+        className="space-y-5"
+      >
+        {renderHeaderSlot ? renderHeaderSlot(watchedValues) : headerSlot}
         <PrefillImportBanner items={importItems} />
         {footerSlot}
         {showPrevisorPresets && <PrevisorDistancePresets />}

@@ -1,25 +1,41 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Search } from "lucide-react";
 
 import { CalculatorCard } from "@/components/calculators/calculator-card";
 import { Input } from "@/components/ui/input";
+import { trackEvent } from "@/lib/analytics";
 import { searchCalculators } from "@/lib/home/search-calculators";
 import { calculators } from "@/lib/calculators/registry";
 
 const MAX_RESULTS = 6;
 const DEBOUNCE_MS = 200;
+const ANALYTICS_DEBOUNCE_MS = 600;
 
 export function CalculatorSearch() {
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
+  const lastTrackedQuery = useRef("");
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
       setDebouncedQuery(query);
     }, DEBOUNCE_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [query]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const trimmed = query.trim();
+      if (trimmed.length < 3) return;
+      if (trimmed === lastTrackedQuery.current) return;
+
+      lastTrackedQuery.current = trimmed;
+      trackEvent("search_used", { search_query: trimmed });
+    }, ANALYTICS_DEBOUNCE_MS);
 
     return () => window.clearTimeout(timer);
   }, [query]);
