@@ -9,6 +9,7 @@ import {
   weightInput,
 } from "./common-inputs";
 import type { Calculator } from "./types";
+import { SCIENTIFIC_REVIEW_DATE } from "./content-standards";
 
 export const tmbCalculator: Calculator = {
   slug: "calculadora-tmb",
@@ -25,7 +26,12 @@ export const tmbCalculator: Calculator = {
   advancedMode: true,
   formula:
     "Homem: TMB = 10 × peso + 6,25 × altura - 5 × idade + 5 | Mulher: TMB = 10 × peso + 6,25 × altura - 5 × idade - 161",
-  relatedSlugs: ["calculadora-gasto-calorico", "calculadora-deficit-calorico"],
+  scientificReviewDate: SCIENTIFIC_REVIEW_DATE,
+  relatedSlugs: [
+    "calculadora-gasto-calorico",
+    "calculadora-deficit-calorico",
+    "calculadora-percentual-gordura",
+  ],
   seoContent: {
     about:
       "A Taxa Metabólica Basal (TMB) representa a quantidade de calorias que seu corpo gasta em repouso absoluto para manter funções vitais como respiração, circulação e temperatura. Utilizamos a fórmula Mifflin-St Jeor, considerada uma das mais precisas para a população geral.",
@@ -60,7 +66,7 @@ export const tmbCalculator: Calculator = {
     {
       question: "O que é TMB?",
       answer:
-        "TMB é a Taxa Metabórica Basal: o gasto calórico mínimo diário em repouso, sem contar atividades físicas.",
+        "TMB é a Taxa Metabólica Basal: o gasto calórico mínimo diário em repouso, sem contar atividades físicas.",
     },
     {
       question: "Qual fórmula é utilizada?",

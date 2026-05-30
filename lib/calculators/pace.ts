@@ -1,7 +1,8 @@
 import { Timer } from "lucide-react";
 
-import { numberInput } from "./common-inputs";
+import { ageInput, numberInput } from "./common-inputs";
 import type { Calculator } from "./types";
+import { SCIENTIFIC_REVIEW_DATE } from "./content-standards";
 
 export const paceCalculator: Calculator = {
   slug: "calculadora-pace",
@@ -15,18 +16,23 @@ export const paceCalculator: Calculator = {
     "Calcule seu pace de corrida em min/km e descubra sua velocidade média.",
   popular: true,
   simpleMode: true,
-  advancedMode: false,
+  advancedMode: true,
   formula: "Pace = tempo / distância | Velocidade = distância / tempo",
-  relatedSlugs: ["calculadora-previsor-tempo", "calculadora-pace-velocidade"],
+  scientificReviewDate: SCIENTIFIC_REVIEW_DATE,
+  relatedSlugs: [
+    "calculadora-fc-maxima",
+    "calculadora-previsor-tempo",
+    "calculadora-pace-velocidade",
+  ],
   seoContent: {
     about:
       "O pace (ritmo) indica quantos minutos você leva para percorrer um quilômetro. É a métrica principal dos corredores para monitorar intensidade e progresso.",
     howItWorks:
-      "Informe a distância percorrida (km) e o tempo total (minutos). A calculadora divide tempo pela distância para obter pace em min/km e deriva a velocidade média em km/h.",
+      "Informe a distância percorrida e o tempo total (h/min/seg). A calculadora divide tempo pela distância para obter pace em min/km e deriva a velocidade média em km/h.",
     interpretationGuide:
-      "O pace principal aparece no formato min:seg por km. KPIs complementam com velocidade média. Compare com treinos anteriores ou use o previsor de tempo para estimar outra distância.",
+      "O pace principal aparece no formato min:seg por km. KPIs incluem tabela de tempos alvo para 5K, 10K, meia e maratona. No avançado, informe FC máxima ou idade para estimar zonas cardíacas.",
     limitations:
-      "Terreno, vento, altitude e paradas não entram no cálculo. Pace médio de prova com largada lenta difere do pace de treino contínuo. Use como referência, não como meta absoluta em todas as condições.",
+      "Terreno, vento, altitude e paradas não entram no cálculo. Pace médio de prova com largada lenta difere do pace de treino contínuo.",
   },
   inputs: [
     numberInput("simple", {
@@ -37,14 +43,52 @@ export const paceCalculator: Calculator = {
       placeholder: "Ex: 10",
       validation: { required: true, min: 0.1, max: 500, step: 0.1 },
     }),
-    numberInput("simple", {
-      id: "timeMinutes",
-      name: "timeMinutes",
+    {
+      id: "timeSeconds",
+      name: "timeSeconds",
       label: "Tempo total",
-      unit: "min",
-      placeholder: "Ex: 50",
-      helpText: "Tempo total em minutos.",
-      validation: { required: true, min: 1, max: 1440, step: 1 },
+      type: "time",
+      mode: "simple",
+      validation: { required: true, min: 60, max: 86400 },
+    },
+    numberInput("advanced", {
+      id: "distance",
+      name: "distance",
+      label: "Distância",
+      unit: "km",
+      placeholder: "Ex: 10",
+      validation: { required: true, min: 0.1, max: 500, step: 0.1 },
+    }),
+    {
+      id: "timeSeconds",
+      name: "timeSeconds",
+      label: "Tempo total",
+      type: "time",
+      mode: "advanced",
+      validation: { required: true, min: 60, max: 86400 },
+    },
+    ageInput("advanced", {
+      id: "age",
+      name: "age",
+      label: "Idade (opcional, para FC estimada)",
+      helpText: "Usada para estimar FC máxima (220 − idade) se FC máx. não informada.",
+    }),
+    numberInput("advanced", {
+      id: "maxHeartRate",
+      name: "maxHeartRate",
+      label: "FC máxima",
+      unit: "bpm",
+      placeholder: "Ex: 190",
+      validation: { min: 120, max: 220, step: 1 },
+    }),
+    numberInput("advanced", {
+      id: "restingHeartRate",
+      name: "restingHeartRate",
+      label: "FC de repouso (opcional)",
+      unit: "bpm",
+      placeholder: "Ex: 60",
+      helpText: "Com FC de repouso, as zonas usam o método Karvonen.",
+      validation: { min: 35, max: 120, step: 1 },
     }),
   ],
   faq: [

@@ -30,6 +30,12 @@ export type MacroChartSegment = {
   color: string;
 };
 
+export type ResultAction = {
+  label: string;
+  href: string;
+  params?: Record<string, string | number>;
+};
+
 export type CalculatorResult = {
   primaryValue: string;
   primaryUnit?: string;
@@ -43,6 +49,18 @@ export type CalculatorResult = {
   macroChart?: MacroChartSegment[];
   /** Slugs for related calculator links in the result panel */
   relatedSlugs?: string[];
+  /** Cross-calculator action buttons (Etapa 2 bridge to Etapa 3) */
+  actions?: ResultAction[];
+  /** Optional React node key for custom result sections */
+  showUrineScale?: boolean;
+  heartRateZones?: {
+    label: string;
+    minBpm: number;
+    maxBpm: number;
+    benefit: string;
+    minPercent: number;
+    maxPercent: number;
+  }[];
 };
 
 export type CalculatorEngine = {

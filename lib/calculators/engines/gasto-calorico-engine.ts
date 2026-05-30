@@ -14,6 +14,7 @@ import {
   buildNextSteps,
   buildResultKpis,
 } from "../gasto-calorico/interpret";
+import { ACTIVITY_LEVEL_EXAMPLES } from "../gasto-calorico/constants-examples";
 
 function parseNumber(value: unknown): number | null {
   if (typeof value === "number" && !Number.isNaN(value)) return value;
@@ -44,10 +45,20 @@ function parseGoal(value: unknown): Goal | null {
 function buildGastoCaloricoResult(
   tmb: number,
   activityFactor: number,
-  goal: Goal
+  goal: Goal,
+  activityLevel?: ActivityLevel
 ): CalculatorResult {
   const get = calculateGet(tmb, activityFactor);
   const targets = buildCalorieTargets(get);
+
+  const kpis = buildResultKpis(activityFactor, targets);
+
+  if (activityLevel && ACTIVITY_LEVEL_EXAMPLES[activityLevel]) {
+    kpis.push({
+      label: "Exemplo prático",
+      value: ACTIVITY_LEVEL_EXAMPLES[activityLevel].example,
+    });
+  }
 
   return {
     primaryValue: formatKcal(targets.maintenance),
@@ -58,8 +69,15 @@ function buildGastoCaloricoResult(
       variant: "default",
     },
     interpretation: buildInterpretation(targets, goal),
-    kpis: buildResultKpis(activityFactor, targets),
+    kpis,
     nextSteps: buildNextSteps(),
+    actions: [
+      {
+        label: "Definir Déficit Calórico",
+        href: "/calculadora-deficit-calorico",
+        params: { dailyExpenditure: targets.maintenance },
+      },
+    ],
   };
 }
 
@@ -71,7 +89,7 @@ export const gastoCaloricoEngine: CalculatorEngine = {
     if (tmb === null || activityLevel === null) return null;
 
     const factor = ACTIVITY_LEVEL_FACTORS[activityLevel];
-    return buildGastoCaloricoResult(tmb, factor, "maintain");
+    return buildGastoCaloricoResult(tmb, factor, "maintain", activityLevel);
   },
 
   calculateAdvanced(values) {

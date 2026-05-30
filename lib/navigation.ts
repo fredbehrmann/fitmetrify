@@ -31,14 +31,16 @@ export const footerNavigation = {
   recursos: [
     { label: "Gasto Calórico", href: "/calculadora-gasto-calorico" },
     { label: "Proteína Diária", href: "/calculadora-proteina" },
+    { label: "Percentual de Gordura", href: "/calculadora-percentual-gordura" },
     { label: "Calculadora de Pace", href: "/calculadora-pace" },
+    { label: "FC Máxima e Zonas", href: "/calculadora-fc-maxima" },
     { label: "Calculadora de 1RM", href: "/calculadora-1rm" },
   ],
   institucional: [
-    { label: "Sobre", href: "#" },
-    { label: "Contato", href: "#" },
-    { label: "Privacidade", href: "#" },
-    { label: "Termos de uso", href: "#" },
+    { label: "Sobre", href: "/sobre" },
+    { label: "Contato", href: "/contato" },
+    { label: "Privacidade", href: "/privacidade" },
+    { label: "Termos de uso", href: "/termos" },
   ],
 } as const;
 

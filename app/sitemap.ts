@@ -3,6 +3,8 @@ import type { MetadataRoute } from "next";
 import { getAllCalculatorSlugs } from "@/lib/calculators/registry";
 import { absoluteUrl } from "@/lib/seo/site";
 
+const INSTITUTIONAL_PATHS = ["/sobre", "/contato", "/privacidade", "/termos"] as const;
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();
   const calculatorEntries = getAllCalculatorSlugs().map((slug) => ({
@@ -10,6 +12,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified,
     changeFrequency: "monthly" as const,
     priority: 0.8,
+  }));
+
+  const institutionalEntries = INSTITUTIONAL_PATHS.map((path) => ({
+    url: absoluteUrl(path),
+    lastModified,
+    changeFrequency: "yearly" as const,
+    priority: 0.4,
   }));
 
   return [
@@ -25,6 +34,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 0.9,
     },
+    ...institutionalEntries,
     ...calculatorEntries,
   ];
 }

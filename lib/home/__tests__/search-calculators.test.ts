@@ -17,7 +17,7 @@ describe("searchCalculators", () => {
   it("matches by category label", () => {
     const results = searchCalculators("corrida", calculators);
     expect(results.every((c) => c.category === "corrida")).toBe(true);
-    expect(results.length).toBe(3);
+    expect(results.length).toBe(4);
   });
 
   it("returns empty array when no match", () => {

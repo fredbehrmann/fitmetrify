@@ -8,6 +8,7 @@ import {
 } from "./common-inputs";
 import { TRAINING_TYPE_OPTIONS } from "./options";
 import type { Calculator } from "./types";
+import { SCIENTIFIC_REVIEW_DATE } from "./content-standards";
 
 export const aguaCalculator: Calculator = {
   slug: "calculadora-agua",
@@ -22,6 +23,7 @@ export const aguaCalculator: Calculator = {
   simpleMode: true,
   advancedMode: true,
   formula: "Água base = peso × 35 ml",
+  scientificReviewDate: SCIENTIFIC_REVIEW_DATE,
   relatedSlugs: ["calculadora-proteina"],
   seoContent: {
     about:
@@ -35,7 +37,27 @@ export const aguaCalculator: Calculator = {
   },
   inputs: [
     weightInput("simple"),
+    selectInput("simple", {
+      id: "ageGroup",
+      name: "ageGroup",
+      label: "Faixa etária",
+      options: [
+        { value: "adult", label: "Adulto (até 59 anos)" },
+        { value: "senior", label: "Idoso (60 anos ou mais)" },
+      ],
+      validation: { required: true },
+    }),
     weightInput("advanced"),
+    selectInput("advanced", {
+      id: "ageGroup",
+      name: "ageGroup",
+      label: "Faixa etária",
+      options: [
+        { value: "adult", label: "Adulto (até 59 anos)" },
+        { value: "senior", label: "Idoso (60 anos ou mais)" },
+      ],
+      validation: { required: true },
+    }),
     numberInput("advanced", {
       id: "workoutTime",
       name: "workoutTime",

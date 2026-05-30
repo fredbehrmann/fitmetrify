@@ -6,7 +6,7 @@ describe("previsorTempoEngine", () => {
   it("predicts time with Riegel simple mode", () => {
     const result = previsorTempoEngine.calculateSimple?.({
       knownDistance: 10,
-      knownTime: 50,
+      knownTimeSeconds: 50 * 60,
       targetDistance: 21.1,
     });
 
@@ -17,7 +17,7 @@ describe("previsorTempoEngine", () => {
   it("returns advanced bands", () => {
     const result = previsorTempoEngine.calculateAdvanced?.({
       knownDistance: 10,
-      knownTime: 50,
+      knownTimeSeconds: 50 * 60,
       targetDistance: 21.1,
       experience: "intermediate",
       elevation: 150,

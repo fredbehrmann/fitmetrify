@@ -3,6 +3,7 @@ import { Poppins } from "next/font/google";
 
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
+import { absoluteUrl, getSiteUrl } from "@/lib/seo/site";
 
 import "./globals.css";
 
@@ -13,6 +14,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(getSiteUrl()),
   title: {
     default: "FitMetrify | Calculadoras Fitness e Nutrição",
     template: "%s | FitMetrify",
@@ -25,6 +27,7 @@ export const metadata: Metadata = {
       "Métricas inteligentes para resultados reais. Calcule IMC, TMB, macros e muito mais.",
     type: "website",
     locale: "pt_BR",
+    url: absoluteUrl("/"),
   },
 };
 

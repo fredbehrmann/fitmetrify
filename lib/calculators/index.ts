@@ -5,8 +5,10 @@ import { gastoCaloricoCalculator } from "./gasto-calorico";
 import { imcCalculator } from "./imc";
 import { macrosCalculator } from "./macros";
 import { oneRepMaxCalculator } from "./one-rep-max";
+import { fcMaximaCalculator } from "./fc-maxima";
 import { paceCalculator } from "./pace";
 import { paceVelocidadeCalculator } from "./pace-velocidade";
+import { percentualGorduraCalculator } from "./percentual-gordura";
 import { pesoIdealCalculator } from "./peso-ideal";
 import { previsorTempoCalculator } from "./previsor-tempo";
 import { proteinaCalculator } from "./proteina";
@@ -25,6 +27,8 @@ export const calculators: Calculator[] = [
   macrosCalculator,
   aguaCalculator,
   caloriasRefeicaoCalculator,
+  percentualGorduraCalculator,
+  fcMaximaCalculator,
   paceCalculator,
   paceVelocidadeCalculator,
   previsorTempoCalculator,

@@ -1,12 +1,20 @@
 import type { CalculatorEngine, CalculatorResult } from "./types";
-import { calculateSpeedFromPace } from "../pace-velocidade/calculate-simple";
+import {
+  calculatePaceFromSpeed,
+  calculateSpeedFromPace,
+  REFERENCE_SPEEDS_KMH,
+} from "../pace-velocidade/calculate-simple";
 import {
   buildClassification,
   buildInterpretation,
   buildKpis,
   buildNextSteps,
 } from "../pace-velocidade/interpret";
-import { formatSpeedKmh } from "../running/format";
+import { parseTimeToMinutes } from "../running/parse-inputs";
+import {
+  formatPaceMinutesPerKm,
+  formatSpeedKmh,
+} from "../running/format";
 
 function parseNumber(value: unknown): number | null {
   if (typeof value === "number" && !Number.isNaN(value)) return value;
@@ -15,19 +23,44 @@ function parseNumber(value: unknown): number | null {
 
 export const paceVelocidadeEngine: CalculatorEngine = {
   calculateSimple(values) {
-    const paceMinutes = parseNumber(values.paceMinutes);
+    const inputMode =
+      typeof values.inputMode === "string" ? values.inputMode : "pace";
 
-    if (paceMinutes === null || paceMinutes <= 0) return null;
+    let result;
 
-    const result = calculateSpeedFromPace(paceMinutes);
+    if (inputMode === "speed") {
+      const speedKmh = parseNumber(values.speedKmh);
+      if (speedKmh === null || speedKmh <= 0) return null;
+      result = calculatePaceFromSpeed(speedKmh);
+    } else {
+      const paceMinutes = parseTimeToMinutes(
+        values,
+        "timeSeconds",
+        "paceMinutes"
+      );
+      if (paceMinutes === null) return null;
+      result = calculateSpeedFromPace(paceMinutes);
+    }
+
+    const referenceKpis = REFERENCE_SPEEDS_KMH.map((speed) => {
+      const ref = calculatePaceFromSpeed(speed);
+      return {
+        label: `${formatSpeedKmh(speed)} km/h`,
+        value: formatPaceMinutesPerKm(ref.paceMinPerKm),
+        unit: "min/km",
+      };
+    });
 
     return {
-      primaryValue: formatSpeedKmh(result.speedKmh),
-      primaryUnit: "km/h",
-      primaryLabel: "Velocidade",
+      primaryValue:
+        inputMode === "speed"
+          ? formatPaceMinutesPerKm(result.paceMinPerKm)
+          : formatSpeedKmh(result.speedKmh),
+      primaryUnit: inputMode === "speed" ? "min/km" : "km/h",
+      primaryLabel: inputMode === "speed" ? "Pace equivalente" : "Velocidade",
       classification: buildClassification(),
       interpretation: buildInterpretation(result),
-      kpis: buildKpis(result),
+      kpis: [...buildKpis(result), ...referenceKpis.slice(0, 6)],
       nextSteps: buildNextSteps(),
     } satisfies CalculatorResult;
   },

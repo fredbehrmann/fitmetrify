@@ -62,7 +62,31 @@ describe("calculator engines", () => {
     expect(getCalculatorEngine("calculadora-zonas-carga")).toBeDefined();
   });
 
-  it("returns undefined for calculators without engine", () => {
-    expect(getCalculatorEngine("calculadora-peso-ideal")).toBeUndefined();
+  it("returns peso ideal engine for calculadora-peso-ideal", () => {
+    const engine = getCalculatorEngine("calculadora-peso-ideal");
+    expect(engine).toBeDefined();
+    expect(engine?.calculateSimple).toBeDefined();
+    expect(engine?.calculateAdvanced).toBeDefined();
+  });
+
+  it("returns calorias refeicao engine for calculadora-calorias-refeicao", () => {
+    const engine = getCalculatorEngine("calculadora-calorias-refeicao");
+    expect(engine).toBeDefined();
+    expect(engine?.calculateSimple).toBeDefined();
+    expect(engine?.calculateAdvanced).toBeDefined();
+  });
+
+  it("returns percentual gordura engine for calculadora-percentual-gordura", () => {
+    const engine = getCalculatorEngine("calculadora-percentual-gordura");
+    expect(engine).toBeDefined();
+    expect(engine?.calculateSimple).toBeDefined();
+    expect(engine?.calculateAdvanced).toBeDefined();
+  });
+
+  it("returns fc maxima engine for calculadora-fc-maxima", () => {
+    const engine = getCalculatorEngine("calculadora-fc-maxima");
+    expect(engine).toBeDefined();
+    expect(engine?.calculateSimple).toBeDefined();
+    expect(engine?.calculateAdvanced).toBeDefined();
   });
 });

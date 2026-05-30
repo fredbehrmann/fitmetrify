@@ -14,7 +14,8 @@ describe("tmbEngine", () => {
     expect(result).not.toBeNull();
     expect(result?.primaryValue).toBe("1780");
     expect(result?.primaryUnit).toBe("kcal/dia");
-    expect(result?.kpis?.[0]?.value).toBe("Mifflin-St Jeor");
+    expect(result?.kpis?.[0]?.label).toBe("TMB por hora");
+    expect(result?.kpis?.[1]?.value).toBe("Mifflin-St Jeor");
     expect(result?.nextSteps?.length).toBeGreaterThan(0);
   });
 
@@ -34,7 +35,8 @@ describe("tmbEngine", () => {
     });
 
     expect(result?.primaryValue).toBe("1752");
-    expect(result?.kpis?.[0]?.value).toBe("Massa magra (Katch-McArdle)");
+    expect(result?.kpis?.[1]?.value).toBe("Massa magra (Katch-McArdle)");
+    expect(result?.kpis?.some((k) => k.label === "Mifflin-St Jeor")).toBe(true);
   });
 
   it("calculateAdvanced derives lean mass from body fat and weight", () => {
@@ -47,7 +49,7 @@ describe("tmbEngine", () => {
     });
 
     expect(result?.primaryValue).toBe("1752");
-    expect(result?.kpis?.some((k) => k.label === "Massa magra estimada")).toBe(
+    expect(result?.kpis?.some((k) => k.label === "Massa magra (base Katch)")).toBe(
       true
     );
   });
@@ -74,6 +76,8 @@ describe("tmbEngine", () => {
     });
 
     expect(result?.primaryValue).toBe("1780");
-    expect(result?.kpis?.[0]?.value).toBe("Mifflin-St Jeor");
+    expect(result?.kpis?.some((k) => k.label === "Harris-Benedict revisada")).toBe(
+      true
+    );
   });
 });

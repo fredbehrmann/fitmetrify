@@ -6,19 +6,28 @@ import {
   CUP_ML,
   EXERCISE_TYPE_LABELS,
   HIGH_INTAKE_WARNING_ML,
-  ML_PER_KG,
-  WAKING_HOURS,
+  HYDRATION_SCHEDULE_HOURS,
   type ExerciseType,
 } from "./constants";
 import { formatCups, formatLiters, formatMl } from "./format";
+
+export function buildScheduleKpis(cups: number): ResultKpi[] {
+  if (cups <= 0) return [];
+
+  const cupsPerSlot = Math.max(1, Math.round(cups / HYDRATION_SCHEDULE_HOURS.length));
+  return HYDRATION_SCHEDULE_HOURS.map((hour) => ({
+    label: hour,
+    value: String(cupsPerSlot),
+    unit: `copo(s) de ${CUP_ML} ml`,
+  }));
+}
 
 export function buildDistributionText(cups: number): string {
   if (cups <= 0) {
     return "Distribua a ingestão de água ao longo do dia, em pequenas quantidades.";
   }
 
-  const intervalHours = Math.max(1, Math.floor(WAKING_HOURS / cups));
-  return `Beba cerca de ${formatCups(cups)} copos de ${CUP_ML} ml, espaçados aproximadamente a cada ${intervalHours} h enquanto estiver acordado.`;
+  return `Beba cerca de ${formatCups(cups)} copos de ${CUP_ML} ml, espaçados ao longo do dia (veja horários sugeridos nos KPIs).`;
 }
 
 export function buildSimpleClassification(): ResultClassification {
@@ -42,9 +51,9 @@ export function buildSimpleKpis(result: WaterResult): ResultKpi[] {
       unit: "ml/dia",
     },
     {
-      label: "Base (35 ml/kg)",
+      label: "Base",
       value: formatMl(result.baseMl),
-      unit: "ml",
+      unit: `${result.mlPerKg} ml/kg`,
     },
   ];
 }
@@ -76,6 +85,8 @@ export function buildAdvancedKpis(result: AdvancedWaterResult): ResultKpi[] {
     value: buildDistributionText(result.cups),
   });
 
+  kpis.push(...buildScheduleKpis(result.cups));
+
   return kpis;
 }
 
@@ -96,7 +107,7 @@ export function buildSimpleInterpretation(
   weightKg: number,
   result: WaterResult
 ): string {
-  return `Com ${weightKg.toLocaleString("pt-BR")} kg, a recomendação base é de ${formatMl(result.baseMl)} ml/dia (${ML_PER_KG} ml por kg), equivalente a cerca de ${formatLiters(result.liters)} litros ou ${formatCups(result.cups)} copos de ${CUP_ML} ml. ${buildDistributionText(result.cups)}`;
+  return `Com ${weightKg.toLocaleString("pt-BR")} kg, a recomendação base é de ${formatMl(result.baseMl)} ml/dia (${result.mlPerKg} ml por kg), equivalente a cerca de ${formatLiters(result.liters)} litros ou ${formatCups(result.cups)} copos de ${CUP_ML} ml. ${buildDistributionText(result.cups)}`;
 }
 
 export function buildAdvancedInterpretation(

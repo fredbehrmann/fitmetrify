@@ -23,13 +23,17 @@ const ENGINE_FIXTURES: Record<string, Record<string, unknown>> = {
     strategy: "moderate",
   },
   "calculadora-proteina": { weight: 75, goal: "general" },
-  "calculadora-macros": { calories: 2000, goal: "lose" },
-  "calculadora-agua": { weight: 70 },
-  "calculadora-pace": { distance: 10, timeMinutes: 50 },
-  "calculadora-pace-velocidade": { paceMinutes: 6 },
+  "calculadora-macros": {
+    calories: 2000,
+    goal: "lose",
+    inputMode: "percent",
+  },
+  "calculadora-agua": { weight: 70, ageGroup: "adult" },
+  "calculadora-pace": { distance: 10, timeSeconds: 50 * 60 },
+  "calculadora-pace-velocidade": { inputMode: "pace", timeSeconds: 6 * 60 },
   "calculadora-previsor-tempo": {
     knownDistance: 10,
-    knownTime: 50,
+    knownTimeSeconds: 50 * 60,
     targetDistance: 21.1,
   },
   "calculadora-1rm": { load: 80, reps: 8 },
@@ -39,7 +43,21 @@ const ENGINE_FIXTURES: Record<string, Record<string, unknown>> = {
     reps: 10,
     load: 32,
   },
-  "calculadora-zonas-carga": { oneRepMax: 100 },
+  "calculadora-zonas-carga": {
+    oneRepMax: 100,
+    exercise: "bench-press",
+    inputMode: "percent",
+  },
+  "calculadora-peso-ideal": { height: 175, sex: "male" },
+  "calculadora-calorias-refeicao": { calories: 2000, mealCount: "4" },
+  "calculadora-percentual-gordura": {
+    sex: "male",
+    height: 180,
+    weight: 80,
+    waist: 85,
+    neck: 38,
+  },
+  "calculadora-fc-maxima": { age: 30, formula: "tanaka" },
 };
 
 describe("Etapa 14 result completeness", () => {

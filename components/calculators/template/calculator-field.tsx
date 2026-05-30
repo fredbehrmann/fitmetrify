@@ -2,6 +2,7 @@
 
 import type { Control } from "react-hook-form";
 
+import { TimeInput } from "@/components/calculators/time-input";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   FormControl,
@@ -66,6 +67,14 @@ export function CalculatorField({ input, control }: CalculatorFieldProps) {
                   ))}
                 </SelectContent>
               </Select>
+            ) : input.type === "time" ? (
+              <TimeInput
+                value={typeof field.value === "number" ? field.value : 0}
+                onChange={field.onChange}
+                describedById={
+                  input.helpText ? `${input.id}-description` : undefined
+                }
+              />
             ) : (
               <Input
                 type={input.type === "number" ? "number" : "text"}
@@ -85,7 +94,9 @@ export function CalculatorField({ input, control }: CalculatorFieldProps) {
             )}
           </FormControl>
           {input.helpText && input.type !== "checkbox" && (
-            <FormDescription>{input.helpText}</FormDescription>
+            <FormDescription id={`${input.id}-description`}>
+              {input.helpText}
+            </FormDescription>
           )}
           <FormMessage />
         </FormItem>

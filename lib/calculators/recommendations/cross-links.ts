@@ -8,6 +8,8 @@ export const PRIMARY_CROSS_LINKS: Record<string, string> = {
   "calculadora-proteina": "calculadora-macros",
   "calculadora-pace": "calculadora-previsor-tempo",
   "calculadora-1rm": "calculadora-zonas-carga",
+  "calculadora-percentual-gordura": "calculadora-tmb",
+  "calculadora-fc-maxima": "calculadora-pace",
 };
 
 export function getRelatedSlugsForCalculator(slug: string): string[] {

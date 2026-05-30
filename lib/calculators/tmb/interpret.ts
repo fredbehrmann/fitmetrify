@@ -1,9 +1,28 @@
 import type { ResultKpi } from "@/lib/calculators/engines/types";
 
-export type TmbFormulaUsed = "mifflin" | "lean-mass";
+import { formatTmb } from "./format";
 
-export function buildInterpretation(tmb: number): string {
-  return `Sua TMB estimada é de ${tmb.toLocaleString("pt-BR")} kcal/dia. Esse é o gasto aproximado do seu corpo em repouso absoluto, sem contar atividades físicas do dia.`;
+export type TmbFormulaUsed = "mifflin" | "lean-mass" | "harris-benedict";
+
+export type TmbComparison = {
+  mifflin?: number;
+  harrisBenedict?: number;
+  katchMcArdle?: number;
+  leanMassKg?: number;
+};
+
+export function buildInterpretation(
+  tmb: number,
+  options?: { sex?: string; showMenstrualNote?: boolean }
+): string {
+  let text = `Sua TMB estimada é de ${tmb.toLocaleString("pt-BR")} kcal/dia (${formatTmb(tmb / 24)} kcal/hora em repouso). Esse é o gasto aproximado do seu corpo em repouso absoluto, sem contar atividades físicas do dia.`;
+
+  if (options?.showMenstrualNote && options.sex === "female") {
+    text +=
+      " Em mulheres, o ciclo menstrual pode alterar a TMB em cerca de 5–10% conforme a fase.";
+  }
+
+  return text;
 }
 
 export function buildNextSteps(): string[] {
@@ -19,11 +38,13 @@ export function buildFormulaKpis(
 ): ResultKpi[] {
   const kpis: ResultKpi[] = [
     {
-      label: "Fórmula utilizada",
+      label: "Fórmula principal",
       value:
         formula === "mifflin"
           ? "Mifflin-St Jeor"
-          : "Massa magra (Katch-McArdle)",
+          : formula === "harris-benedict"
+            ? "Harris-Benedict revisada"
+            : "Massa magra (Katch-McArdle)",
     },
   ];
 
@@ -36,4 +57,50 @@ export function buildFormulaKpis(
   }
 
   return kpis;
+}
+
+export function buildComparisonKpis(comparison: TmbComparison): ResultKpi[] {
+  const kpis: ResultKpi[] = [];
+
+  if (comparison.mifflin !== undefined) {
+    kpis.push({
+      label: "Mifflin-St Jeor",
+      value: formatTmb(comparison.mifflin),
+      unit: "kcal/dia",
+    });
+  }
+
+  if (comparison.harrisBenedict !== undefined) {
+    kpis.push({
+      label: "Harris-Benedict revisada",
+      value: formatTmb(comparison.harrisBenedict),
+      unit: "kcal/dia",
+    });
+  }
+
+  if (comparison.katchMcArdle !== undefined) {
+    kpis.push({
+      label: "Katch-McArdle",
+      value: formatTmb(comparison.katchMcArdle),
+      unit: "kcal/dia",
+    });
+  }
+
+  if (comparison.leanMassKg !== undefined) {
+    kpis.push({
+      label: "Massa magra (base Katch)",
+      value: comparison.leanMassKg.toFixed(1),
+      unit: "kg",
+    });
+  }
+
+  return kpis;
+}
+
+export function buildHourlyKpi(tmb: number): ResultKpi {
+  return {
+    label: "TMB por hora",
+    value: formatTmb(tmb / 24),
+    unit: "kcal/h",
+  };
 }

@@ -1,12 +1,9 @@
 import { estimateLeanMassFromBodyFat } from "../tmb/calculate-lean-mass";
 import {
   DEFAULT_MEAL_COUNT,
-  LBM_FREQUENCY_BONUS,
-  LBM_FREQUENCY_THRESHOLD,
-  LBM_PROTEIN_BASE_PER_KG,
-  LBM_PROTEIN_MAX_PER_KG,
-  LBM_PROTEIN_MIN_PER_KG,
-  LBM_STRENGTH_BONUS,
+  PLANT_BASED_MULTIPLIER,
+  PROTEIN_RANGES_BY_GOAL,
+  type DietPreference,
   type ProteinGoal,
   type TrainingType,
 } from "./constants";
@@ -21,6 +18,7 @@ export type AdvancedProteinResult = ProteinRangeResult & {
   mealCount: number;
   gramsPerMeal: number;
   usesLeanMass: boolean;
+  plantBasedAdjusted?: boolean;
 };
 
 function resolveLeanMass(
@@ -33,14 +31,23 @@ function resolveLeanMass(
   return null;
 }
 
-function calculateLbmProteinPerKg(
-  trainingType: TrainingType,
-  weeklyFrequency: number
-): number {
-  let gramsPerKg = LBM_PROTEIN_BASE_PER_KG;
-  if (trainingType === "strength") gramsPerKg += LBM_STRENGTH_BONUS;
-  if (weeklyFrequency >= LBM_FREQUENCY_THRESHOLD) gramsPerKg += LBM_FREQUENCY_BONUS;
-  return Math.min(LBM_PROTEIN_MAX_PER_KG, gramsPerKg);
+function applyPlantBasedMultiplier(
+  result: ProteinRangeResult,
+  dietPreference?: DietPreference
+): { result: ProteinRangeResult; adjusted: boolean } {
+  if (dietPreference !== "vegetarian" && dietPreference !== "vegan") {
+    return { result, adjusted: false };
+  }
+
+  return {
+    result: {
+      ...result,
+      minGrams: Math.round(result.minGrams * PLANT_BASED_MULTIPLIER),
+      idealGrams: Math.round(result.idealGrams * PLANT_BASED_MULTIPLIER),
+      maxGrams: Math.round(result.maxGrams * PLANT_BASED_MULTIPLIER),
+    },
+    adjusted: true,
+  };
 }
 
 export function calculateAdvancedProtein(
@@ -48,7 +55,12 @@ export function calculateAdvancedProtein(
   goal: ProteinGoal,
   trainingType: TrainingType,
   weeklyFrequency: number,
-  options?: { leanMass?: number; bodyFat?: number }
+  options?: {
+    leanMass?: number;
+    bodyFat?: number;
+    dietPreference?: DietPreference;
+    mealCount?: number;
+  }
 ): AdvancedProteinResult {
   const leanMassKg = resolveLeanMass(
     weightKg,
@@ -56,36 +68,38 @@ export function calculateAdvancedProtein(
     options?.bodyFat
   );
 
+  const mealCount = options?.mealCount ?? DEFAULT_MEAL_COUNT;
   let base: ProteinRangeResult;
+  let usesLeanMass = false;
+  let gramsPerKgLbm: number | undefined;
 
   if (leanMassKg !== null) {
-    const gramsPerKgLbm = calculateLbmProteinPerKg(trainingType, weeklyFrequency);
+    const range = PROTEIN_RANGES_BY_GOAL[goal];
+    gramsPerKgLbm = (range.minPerKg + range.maxPerKg) / 2;
     base = {
-      minGrams: Math.round(leanMassKg * LBM_PROTEIN_MIN_PER_KG),
+      minGrams: Math.round(leanMassKg * range.minPerKg),
       idealGrams: Math.round(leanMassKg * gramsPerKgLbm),
-      maxGrams: Math.round(leanMassKg * LBM_PROTEIN_MAX_PER_KG),
-      minPerKg: LBM_PROTEIN_MIN_PER_KG,
-      maxPerKg: LBM_PROTEIN_MAX_PER_KG,
+      maxGrams: Math.round(leanMassKg * range.maxPerKg),
+      minPerKg: range.minPerKg,
+      maxPerKg: range.maxPerKg,
     };
-
-    const mealCount = DEFAULT_MEAL_COUNT;
-    return {
-      ...base,
-      leanMassKg,
-      gramsPerKgLbm,
-      mealCount,
-      gramsPerMeal: Math.round(base.idealGrams / mealCount),
-      usesLeanMass: true,
-    };
+    usesLeanMass = true;
+  } else {
+    base = calculateSimpleProtein(weightKg, goal);
   }
 
-  base = calculateSimpleProtein(weightKg, goal);
-  const mealCount = DEFAULT_MEAL_COUNT;
+  const { result: adjustedBase, adjusted } = applyPlantBasedMultiplier(
+    base,
+    options?.dietPreference
+  );
 
   return {
-    ...base,
+    ...adjustedBase,
+    leanMassKg: leanMassKg ?? undefined,
+    gramsPerKgLbm,
     mealCount,
-    gramsPerMeal: Math.round(base.idealGrams / mealCount),
-    usesLeanMass: false,
+    gramsPerMeal: Math.round(adjustedBase.idealGrams / mealCount),
+    usesLeanMass,
+    plantBasedAdjusted: adjusted,
   };
 }

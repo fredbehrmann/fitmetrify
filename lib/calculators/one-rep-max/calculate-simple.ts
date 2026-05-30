@@ -1,10 +1,9 @@
-import { brzycki1RM, trainingLoads, type TrainingZoneLoad } from "../strength/one-rm-formulas";
+import { brzycki1RM } from "../strength/one-rm-formulas";
 
 export type SimpleOneRmResult = {
   loadKg: number;
   reps: number;
   oneRmKg: number;
-  zones: TrainingZoneLoad[];
 };
 
 export function calculateSimpleOneRm(
@@ -18,6 +17,5 @@ export function calculateSimpleOneRm(
     loadKg,
     reps,
     oneRmKg,
-    zones: trainingLoads(oneRmKg),
   };
 }

@@ -30,11 +30,17 @@ const BODY_FAT_SUGGESTION =
 
 export function buildSimpleInterpretation(
   classification: ResultClassification,
-  bmi: number
+  bmi: number,
+  age?: number
 ): string {
   const base =
+    SIMPLE_INTERPRETATIONS[classification.label.replace(" (referência ≥60a)", "")] ??
     SIMPLE_INTERPRETATIONS[classification.label] ??
     `Seu IMC é ${bmi.toFixed(1)} kg/m².`;
+
+  if (age !== undefined && age >= 60) {
+    return `${base} Para idosos (≥60 anos), a classificação usa faixas adaptadas (sobrepeso a partir de IMC 27).`;
+  }
 
   return base;
 }

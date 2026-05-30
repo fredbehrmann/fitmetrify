@@ -6,6 +6,7 @@ import {
   RUNNER_EXPERIENCE_OPTIONS,
 } from "./options";
 import type { Calculator } from "./types";
+import { SCIENTIFIC_REVIEW_DATE } from "./content-standards";
 
 export const previsorTempoCalculator: Calculator = {
   slug: "calculadora-previsor-tempo",
@@ -20,6 +21,7 @@ export const previsorTempoCalculator: Calculator = {
   simpleMode: true,
   advancedMode: true,
   formula: "T2 = T1 × (D2 / D1)^1,06",
+  scientificReviewDate: SCIENTIFIC_REVIEW_DATE,
   relatedSlugs: ["calculadora-pace", "calculadora-pace-velocidade"],
   seoContent: {
     about:
@@ -40,14 +42,14 @@ export const previsorTempoCalculator: Calculator = {
       placeholder: "Ex: 10",
       validation: { required: true, min: 0.1, max: 500, step: 0.1 },
     }),
-    numberInput("simple", {
-      id: "knownTime",
-      name: "knownTime",
+    {
+      id: "knownTimeSeconds",
+      name: "knownTimeSeconds",
       label: "Tempo conhecido",
-      unit: "min",
-      placeholder: "Ex: 50",
-      validation: { required: true, min: 1, max: 1440, step: 1 },
-    }),
+      type: "time",
+      mode: "simple",
+      validation: { required: true, min: 60, max: 86400 },
+    },
     numberInput("simple", {
       id: "targetDistance",
       name: "targetDistance",
@@ -64,14 +66,14 @@ export const previsorTempoCalculator: Calculator = {
       placeholder: "Ex: 10",
       validation: { required: true, min: 0.1, max: 500, step: 0.1 },
     }),
-    numberInput("advanced", {
-      id: "knownTime",
-      name: "knownTime",
+    {
+      id: "knownTimeSeconds",
+      name: "knownTimeSeconds",
       label: "Tempo conhecido",
-      unit: "min",
-      placeholder: "Ex: 50",
-      validation: { required: true, min: 1, max: 1440, step: 1 },
-    }),
+      type: "time",
+      mode: "advanced",
+      validation: { required: true, min: 60, max: 86400 },
+    },
     numberInput("advanced", {
       id: "targetDistance",
       name: "targetDistance",

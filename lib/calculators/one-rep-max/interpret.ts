@@ -4,18 +4,11 @@ import type { AdvancedOneRmResult } from "./calculate-advanced";
 import type { SimpleOneRmResult } from "./calculate-simple";
 import {
   ONE_RM_METHOD_LABELS,
-  ZONE_LABELS,
+  STRENGTH_TIER_LABELS,
   type OneRmMethod,
+  type StrengthTier,
 } from "../strength/constants";
 import { formatLoadKg } from "../strength/format";
-
-function buildZoneKpis(zones: SimpleOneRmResult["zones"]): ResultKpi[] {
-  return zones.map((zone) => ({
-    label: `${zone.percent}% — ${ZONE_LABELS[zone.percent]}`,
-    value: formatLoadKg(zone.loadKg),
-    unit: "kg",
-  }));
-}
 
 export function buildSimpleClassification(): ResultClassification {
   return { label: "1RM estimado (Brzycki)", variant: "default" };
@@ -25,6 +18,20 @@ export function buildAdvancedClassification(): ResultClassification {
   return { label: "Comparação de métodos", variant: "success" };
 }
 
+export function buildStrengthClassification(
+  tier: StrengthTier
+): ResultClassification {
+  return {
+    label: `Força relativa: ${STRENGTH_TIER_LABELS[tier]}`,
+    variant:
+      tier === "elite" || tier === "above-average"
+        ? "success"
+        : tier === "weak"
+          ? "warning"
+          : "default",
+  };
+}
+
 export function buildSimpleKpis(result: SimpleOneRmResult): ResultKpi[] {
   return [
     {
@@ -32,12 +39,11 @@ export function buildSimpleKpis(result: SimpleOneRmResult): ResultKpi[] {
       value: formatLoadKg(result.loadKg),
       unit: `kg × ${result.reps} reps`,
     },
-    ...buildZoneKpis(result.zones),
   ];
 }
 
 export function buildAdvancedKpis(result: AdvancedOneRmResult): ResultKpi[] {
-  const methodKpis: ResultKpi[] = [
+  return [
     {
       label: "Brzycki",
       value: formatLoadKg(result.estimates.brzycki),
@@ -58,28 +64,16 @@ export function buildAdvancedKpis(result: AdvancedOneRmResult): ResultKpi[] {
       value: formatLoadKg(result.estimates.average),
       unit: "kg",
     },
-  ];
-
-  return [
-    ...methodKpis,
     {
       label: "Referência",
       value: formatLoadKg(result.loadKg),
       unit: `kg × ${result.reps} reps`,
     },
-    ...buildZoneKpis(result.zones),
   ];
 }
 
 export function buildSimpleInterpretation(result: SimpleOneRmResult): string {
-  const zonesText = result.zones
-    .map(
-      (z) =>
-        `${z.percent}% (${ZONE_LABELS[z.percent]}): ${formatLoadKg(z.loadKg)} kg`
-    )
-    .join("; ");
-
-  return `Com ${formatLoadKg(result.loadKg)} kg por ${result.reps} repetições, seu 1RM estimado (Brzycki) é ${formatLoadKg(result.oneRmKg)} kg. Zonas sugeridas: ${zonesText}. Prefira séries de 1–10 reps para estimativas mais confiáveis.`;
+  return `Com ${formatLoadKg(result.loadKg)} kg por ${result.reps} repetições, seu 1RM estimado (Brzycki) é ${formatLoadKg(result.oneRmKg)} kg. Use a calculadora de zonas de carga para ver as 6 faixas de treino. Prefira séries de 1–10 reps para estimativas mais confiáveis.`;
 }
 
 export function buildAdvancedInterpretation(
@@ -92,14 +86,7 @@ export function buildAdvancedInterpretation(
       ? result.estimates.average
       : result.estimates[method];
 
-  const zonesText = result.zones
-    .map(
-      (z) =>
-        `${z.percent}% (${ZONE_LABELS[z.percent]}): ${formatLoadKg(z.loadKg)} kg`
-    )
-    .join("; ");
-
-  return `Com ${formatLoadKg(result.loadKg)} kg por ${result.reps} repetições: Brzycki ${formatLoadKg(result.estimates.brzycki)} kg, Epley ${formatLoadKg(result.estimates.epley)} kg, Lombardi ${formatLoadKg(result.estimates.lombardi)} kg. Média: ${formatLoadKg(result.estimates.average)} kg. Você selecionou ${methodLabel} (${formatLoadKg(selectedValue)} kg). Zonas baseadas na média: ${zonesText}.`;
+  return `Com ${formatLoadKg(result.loadKg)} kg por ${result.reps} repetições: Brzycki ${formatLoadKg(result.estimates.brzycki)} kg, Epley ${formatLoadKg(result.estimates.epley)} kg, Lombardi ${formatLoadKg(result.estimates.lombardi)} kg. Média: ${formatLoadKg(result.estimates.average)} kg. Método selecionado: ${methodLabel} (${formatLoadKg(selectedValue)} kg). Veja zonas de carga com o botão abaixo.`;
 }
 
 export function buildHighRepsWarning(reps: number): string[] | undefined {

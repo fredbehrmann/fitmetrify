@@ -2,8 +2,10 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 import { CategoryBadge } from "@/components/calculators/category-badge";
+import { ComingSoonBadge } from "@/components/ui/coming-soon-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { isCalculatorEngineReady } from "@/lib/calculators/engines";
 import type { Calculator } from "@/lib/calculators/types";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +16,7 @@ type CalculatorCardProps = {
 
 export function CalculatorCard({ calculator, className }: CalculatorCardProps) {
   const Icon = calculator.icon;
+  const engineReady = isCalculatorEngineReady(calculator.slug);
 
   return (
     <Card className={cn("card-hover group bg-card-hover/0 hover:bg-card-hover", className)}>
@@ -24,7 +27,10 @@ export function CalculatorCard({ calculator, className }: CalculatorCardProps) {
           </div>
           <CategoryBadge category={calculator.category} />
         </div>
-        <CardTitle className="text-lg">{calculator.title}</CardTitle>
+        <div className="flex flex-wrap items-center gap-2">
+          <CardTitle className="text-lg">{calculator.title}</CardTitle>
+          {!engineReady && <ComingSoonBadge />}
+        </div>
       </CardHeader>
       <CardContent>
         <p className="text-muted-foreground text-sm leading-relaxed">

@@ -38,6 +38,7 @@ export const HOME_SECTIONS: HomeSection[] = [
         "calculadora-tmb",
         "calculadora-gasto-calorico",
         "calculadora-proteina",
+        "calculadora-percentual-gordura",
         "calculadora-macros",
         "calculadora-1rm",
         "calculadora-volume-treino",

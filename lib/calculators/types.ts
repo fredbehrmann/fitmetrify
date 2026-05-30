@@ -27,6 +27,7 @@ export type CalculatorSeoContent = {
   howItWorks: string;
   interpretationGuide: string;
   limitations: string;
+  measurementGuide?: string;
 };
 
 export type InputValidation = {
@@ -67,6 +68,7 @@ export type Calculator = {
   seoContent: CalculatorSeoContent;
   faq: FaqItem[];
   formula?: string;
+  scientificReviewDate?: string;
   relatedSlugs?: string[];
 };
 

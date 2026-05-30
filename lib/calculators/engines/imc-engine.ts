@@ -7,14 +7,24 @@ import {
   IMC_SCALE_SEGMENTS,
 } from "../imc/constants";
 import {
+  estimateBodyFatDeurenberg,
+  formatBodyFatPercent,
+} from "../imc/deurenberg";
+import {
   buildAdvancedWarnings,
   buildNextSteps,
   buildSimpleInterpretation,
   type ImcAdvancedContext,
 } from "../imc/interpret";
+import type { Sex } from "../tmb/calculate-mifflin";
 
 function parseNumber(value: unknown): number | null {
   if (typeof value === "number" && !Number.isNaN(value)) return value;
+  return null;
+}
+
+function parseSex(value: unknown): Sex | null {
+  if (value === "male" || value === "female") return value;
   return null;
 }
 
@@ -24,8 +34,42 @@ function buildImcResult(
   options?: { advanced?: ImcAdvancedContext }
 ): CalculatorResult {
   const bmi = calculateImc(weightKg, heightCm);
-  const classification = classifyImc(bmi);
-  const interpretation = buildSimpleInterpretation(classification, bmi);
+  const age = options?.advanced?.age;
+  const classification = classifyImc(bmi, { age });
+  const interpretation = buildSimpleInterpretation(classification, bmi, age);
+
+  const kpis = [];
+
+  if (
+    options?.advanced?.sex &&
+    age !== undefined &&
+    parseSex(options.advanced.sex)
+  ) {
+    const bodyFat = estimateBodyFatDeurenberg(
+      bmi,
+      age,
+      options.advanced.sex as Sex
+    );
+    kpis.push({
+      label: "Gordura estimada (Deurenberg)",
+      value: formatBodyFatPercent(bodyFat),
+    });
+  }
+
+  const actions: CalculatorResult["actions"] = [];
+
+  const tmbParams: Record<string, string | number> = {
+    weight: weightKg,
+    height: heightCm,
+  };
+  if (options?.advanced?.sex) tmbParams.sex = options.advanced.sex;
+  if (age !== undefined) tmbParams.age = age;
+
+  actions.push({
+    label: "Calcular minha TMB",
+    href: "/calculadora-tmb",
+    params: tmbParams,
+  });
 
   const result: CalculatorResult = {
     primaryValue: formatImc(bmi),
@@ -39,7 +83,9 @@ function buildImcResult(
       min: IMC_SCALE_MIN,
       max: IMC_SCALE_MAX,
     },
+    kpis: kpis.length > 0 ? kpis : undefined,
     nextSteps: buildNextSteps(),
+    actions,
   };
 
   if (options?.advanced) {

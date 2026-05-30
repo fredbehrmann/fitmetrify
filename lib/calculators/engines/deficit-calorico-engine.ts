@@ -15,6 +15,7 @@ import {
   buildSimpleClassification,
   buildSimpleInterpretation,
   buildSimpleKpis,
+  buildSimpleWarnings,
 } from "../deficit-calorico/interpret";
 import { ACTIVITY_LEVEL_FACTORS } from "../gasto-calorico/constants";
 
@@ -61,6 +62,13 @@ function buildDeficitResult(
     nextSteps: buildNextSteps(),
     classification: options?.classification,
     warnings: options?.warnings,
+    actions: [
+      {
+        label: "Distribuir Macronutrientes",
+        href: "/calculadora-macros",
+        params: { calories: targetCalories },
+      },
+    ],
   };
 }
 
@@ -68,6 +76,7 @@ export const deficitCaloricoEngine: CalculatorEngine = {
   calculateSimple(values) {
     const expenditure = parseNumber(values.dailyExpenditure);
     const strategy = parseStrategy(values.strategy);
+    const sex = parseSex(values.sex);
 
     if (expenditure === null || strategy === null) return null;
 
@@ -78,7 +87,10 @@ export const deficitCaloricoEngine: CalculatorEngine = {
       result.targetCalories,
       buildSimpleInterpretation(expenditure, result, strategy),
       buildSimpleKpis(result),
-      { classification: buildSimpleClassification(strategy) }
+      {
+        classification: buildSimpleClassification(strategy),
+        warnings: buildSimpleWarnings(result, strategy, sex ?? undefined),
+      }
     );
   },
 

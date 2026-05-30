@@ -55,4 +55,20 @@ export function calculateSimpleMacros(
   return buildProfileFromGrams(proteinG, carbsG, fatG);
 }
 
+export function calculateMacrosFromGramsPerKg(
+  weightKg: number,
+  calories: number,
+  proteinPerKg = 1.8,
+  fatMinPerKg = 1.0
+): MacroProfile | null {
+  const proteinG = Math.round(weightKg * proteinPerKg);
+  const fatG = Math.round(weightKg * fatMinPerKg);
+  const fixedKcal = proteinG * KCAL_PER_G_PROTEIN + fatG * KCAL_PER_G_FAT;
+
+  if (fixedKcal >= calories) return null;
+
+  const carbsG = Math.round((calories - fixedKcal) / KCAL_PER_G_CARBS);
+  return buildProfileFromGrams(proteinG, carbsG, fatG);
+}
+
 export { buildProfileFromGrams };

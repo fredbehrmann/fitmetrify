@@ -2,6 +2,11 @@ import type { CalculatorEngine, CalculatorResult } from "./types";
 import { calculateAdvancedOneRm } from "../one-rep-max/calculate-advanced";
 import { calculateSimpleOneRm } from "../one-rep-max/calculate-simple";
 import type { OneRmMethod } from "../strength/constants";
+import {
+  classifyRelativeStrength,
+  type ExerciseId,
+} from "../strength/strength-standards";
+import type { Sex } from "../tmb/calculate-mifflin";
 import { formatLoadKg } from "../strength/format";
 import {
   buildAdvancedClassification,
@@ -12,6 +17,7 @@ import {
   buildSimpleClassification,
   buildSimpleInterpretation,
   buildSimpleKpis,
+  buildStrengthClassification,
 } from "../one-rep-max/interpret";
 
 function parseNumber(value: unknown): number | null {
@@ -29,6 +35,40 @@ function parseMethod(value: unknown): OneRmMethod {
     return value;
   }
   return "average";
+}
+
+function parseSex(value: unknown): Sex | null {
+  if (value === "male" || value === "female") return value;
+  return null;
+}
+
+function parseExercise(value: unknown): ExerciseId {
+  const exercises: ExerciseId[] = [
+    "bench-press",
+    "incline-bench",
+    "overhead-press",
+    "squat",
+    "deadlift",
+    "row",
+    "pull-up",
+    "leg-press",
+    "curl",
+    "other",
+  ];
+  if (typeof value === "string" && exercises.includes(value as ExerciseId)) {
+    return value as ExerciseId;
+  }
+  return "other";
+}
+
+function buildOneRmActions(oneRmKg: number): CalculatorResult["actions"] {
+  return [
+    {
+      label: "Ver Zonas de Carga com este 1RM",
+      href: "/calculadora-zonas-carga",
+      params: { oneRepMax: Math.round(oneRmKg * 10) / 10 },
+    },
+  ];
 }
 
 export const oneRepMaxEngine: CalculatorEngine = {
@@ -50,6 +90,7 @@ export const oneRepMaxEngine: CalculatorEngine = {
       kpis: buildSimpleKpis(result),
       warnings: buildHighRepsWarning(reps),
       nextSteps: buildNextSteps(),
+      actions: buildOneRmActions(result.oneRmKg),
     } satisfies CalculatorResult;
   },
 
@@ -57,21 +98,38 @@ export const oneRepMaxEngine: CalculatorEngine = {
     const load = parseNumber(values.load);
     const reps = parseNumber(values.reps);
     const method = parseMethod(values.method);
+    const bodyWeight = parseNumber(values.weight);
+    const sex = parseSex(values.sex);
+    const exercise = parseExercise(values.exercise);
 
     if (load === null || reps === null) return null;
 
     const result = calculateAdvancedOneRm(load, reps, method);
     if (result === null) return null;
 
+    let classification = buildAdvancedClassification();
+    const kpis = buildAdvancedKpis(result);
+
+    if (bodyWeight !== null && sex !== null) {
+      const tier = classifyRelativeStrength(
+        exercise,
+        result.oneRmKg,
+        bodyWeight,
+        sex
+      );
+      classification = buildStrengthClassification(tier);
+    }
+
     return {
       primaryValue: formatLoadKg(result.estimates.average),
       primaryUnit: "kg",
       primaryLabel: "1RM (média)",
-      classification: buildAdvancedClassification(),
+      classification,
       interpretation: buildAdvancedInterpretation(result, method),
-      kpis: buildAdvancedKpis(result),
+      kpis,
       warnings: buildHighRepsWarning(reps),
       nextSteps: buildNextSteps(),
+      actions: buildOneRmActions(result.estimates.average),
     } satisfies CalculatorResult;
   },
 };

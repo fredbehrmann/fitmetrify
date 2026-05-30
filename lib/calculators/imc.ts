@@ -9,6 +9,7 @@ import {
   weightInput,
 } from "./common-inputs";
 import type { Calculator } from "./types";
+import { SCIENTIFIC_REVIEW_DATE } from "./content-standards";
 
 export const imcCalculator: Calculator = {
   slug: "calculadora-imc",
@@ -24,7 +25,12 @@ export const imcCalculator: Calculator = {
   simpleMode: true,
   advancedMode: true,
   formula: "IMC = peso (kg) / altura (m)²",
-  relatedSlugs: ["calculadora-tmb", "calculadora-gasto-calorico"],
+  scientificReviewDate: SCIENTIFIC_REVIEW_DATE,
+  relatedSlugs: [
+    "calculadora-tmb",
+    "calculadora-percentual-gordura",
+    "calculadora-gasto-calorico",
+  ],
   seoContent: {
     about:
       "O Índice de Massa Corporal (IMC) é uma medida que relaciona peso e altura para estimar se você está abaixo, dentro ou acima da faixa considerada saudável. É uma ferramenta útil de triagem, mas não diferencia massa muscular de gordura corporal.",
@@ -33,7 +39,9 @@ export const imcCalculator: Calculator = {
     interpretationGuide:
       "O painel exibe o IMC calculado, a classificação segundo faixas da OMS (normal, sobrepeso, obesidade etc.) e uma barra visual do seu posicionamento. Use a interpretação textual e os próximos passos para decidir se vale calcular TMB ou percentual de gordura.",
     limitations:
-      "O IMC não separa massa muscular de gordura e pode superestimar risco em atletas. Não substitui consulta médica ou nutricional. Referências da OMS não se aplicam igualmente a gestantes, idosos e populações específicas sem adaptação profissional.",
+      "O IMC (OMS) é triagem populacional e não diferencia massa muscular de gordura; pode classificar atletas como sobrepeso. Margem prática de interpretação individual é alta. Não substitui avaliação clínica.",
+    measurementGuide:
+      "Circunferência abdominal (modo avançado): meça na altura do umbigo, em pé, após expirar normalmente, com fita paralela ao chão e sem comprimir a pele.",
   },
   inputs: [
     weightInput("simple"),

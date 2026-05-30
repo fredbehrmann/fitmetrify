@@ -63,6 +63,30 @@ export function buildSimpleKpis(profile: MacroProfile): ResultKpi[] {
   ];
 }
 
+export function buildFoodExampleKpis(profile: MacroProfile): ResultKpi[] {
+  const chickenPortions = Math.max(1, Math.round(profile.proteinG / 31));
+  const ricePortions = Math.max(1, Math.round(profile.carbsG / 28));
+  const oilSpoons = Math.max(1, Math.round(profile.fatG / 14));
+
+  return [
+    {
+      label: "Exemplo proteína",
+      value: `~${chickenPortions} porção(ões)`,
+      unit: "frango grelhado (31 g/100 g)",
+    },
+    {
+      label: "Exemplo carboidrato",
+      value: `~${ricePortions} porção(ões)`,
+      unit: "arroz cozido (28 g/100 g)",
+    },
+    {
+      label: "Exemplo gordura",
+      value: `~${oilSpoons} colher(es)`,
+      unit: "azeite (14 g/colher)",
+    },
+  ];
+}
+
 export function buildAdvancedKpis(result: AdvancedMacroResult): ResultKpi[] {
   if (!result.hasCycling) {
     return buildSimpleKpis(result.training);

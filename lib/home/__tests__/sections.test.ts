@@ -31,8 +31,8 @@ describe("home sections", () => {
     );
   });
 
-  it("returns 6 calculators for ganho de massa section", () => {
+  it("returns 7 calculators for ganho de massa section", () => {
     const section = HOME_SECTIONS.find((s) => s.id === "ganho-massa")!;
-    expect(getHomeSectionCalculators(section)).toHaveLength(6);
+    expect(getHomeSectionCalculators(section)).toHaveLength(7);
   });
 });

@@ -1,7 +1,7 @@
 import type { CalculatorEngine, CalculatorResult } from "./types";
 import { calculateAdvancedWater } from "../agua/calculate-advanced";
 import { calculateSimpleWater } from "../agua/calculate-simple";
-import type { ExerciseType } from "../agua/constants";
+import type { AgeGroup, ExerciseType } from "../agua/constants";
 import { formatLiters } from "../agua/format";
 import {
   buildAdvancedClassification,
@@ -30,6 +30,10 @@ function parseExerciseType(value: unknown): ExerciseType | undefined {
   return undefined;
 }
 
+function parseAgeGroup(value: unknown): AgeGroup {
+  return value === "senior" ? "senior" : "adult";
+}
+
 function buildWaterResult(
   result: ReturnType<typeof calculateSimpleWater>,
   options: {
@@ -47,16 +51,18 @@ function buildWaterResult(
     kpis: options.kpis,
     warnings: buildHighIntakeWarning(result.totalMl),
     nextSteps: buildNextSteps(),
+    showUrineScale: true,
   };
 }
 
 export const aguaEngine: CalculatorEngine = {
   calculateSimple(values) {
     const weight = parseNumber(values.weight);
+    const ageGroup = parseAgeGroup(values.ageGroup);
 
     if (weight === null) return null;
 
-    const result = calculateSimpleWater(weight);
+    const result = calculateSimpleWater(weight, ageGroup);
 
     return buildWaterResult(result, {
       classification: buildSimpleClassification(),
@@ -71,12 +77,15 @@ export const aguaEngine: CalculatorEngine = {
 
     if (weight === null) return null;
 
+    const ageGroup = parseAgeGroup(values.ageGroup);
+
     const result = calculateAdvancedWater(weight, {
       workoutTime: workoutTime ?? 0,
       hotClimate: parseBoolean(values.hotClimate),
       highCaffeine: parseBoolean(values.highCaffeine),
       heavySweating: parseBoolean(values.heavySweating),
       exerciseType: parseExerciseType(values.exerciseType),
+      ageGroup,
     });
 
     return buildWaterResult(result, {

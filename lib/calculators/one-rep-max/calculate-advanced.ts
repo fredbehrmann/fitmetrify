@@ -1,9 +1,7 @@
 import type { OneRmMethod } from "../strength/constants";
 import {
   calculateAllOneRmEstimates,
-  trainingLoads,
   type OneRmEstimates,
-  type TrainingZoneLoad,
 } from "../strength/one-rm-formulas";
 
 export type AdvancedOneRmResult = {
@@ -12,7 +10,6 @@ export type AdvancedOneRmResult = {
   estimates: OneRmEstimates;
   selectedMethod: OneRmMethod;
   oneRmKg: number;
-  zones: TrainingZoneLoad[];
 };
 
 export function calculateAdvancedOneRm(
@@ -34,6 +31,5 @@ export function calculateAdvancedOneRm(
     estimates,
     selectedMethod,
     oneRmKg,
-    zones: trainingLoads(oneRmKg),
   };
 }

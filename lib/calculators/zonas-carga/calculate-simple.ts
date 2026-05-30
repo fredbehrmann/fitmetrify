@@ -1,4 +1,4 @@
-import { brzycki1RM, trainingLoads, type TrainingZoneLoad } from "../strength/one-rm-formulas";
+import { brzycki1RM, trainingZoneLoads, type TrainingZoneLoad } from "../strength/one-rm-formulas";
 
 export type ZonesResult = {
   oneRmKg: number;
@@ -6,6 +6,7 @@ export type ZonesResult = {
   zones: TrainingZoneLoad[];
   estimateLoad?: number;
   estimateReps?: number;
+  exercise?: string;
 };
 
 export function resolveOneRepMax(
@@ -34,16 +35,24 @@ export function resolveOneRepMax(
 export function calculateZones(
   oneRepMax?: number,
   estimateLoad?: number,
-  estimateReps?: number
+  estimateReps?: number,
+  options?: { exercise?: string; rpe?: number }
 ): ZonesResult | null {
   const resolved = resolveOneRepMax(oneRepMax, estimateLoad, estimateReps);
   if (resolved === null) return null;
 
+  let oneRmKg = resolved.oneRmKg;
+  if (options?.rpe !== undefined) {
+    const percent = options.rpe >= 10 ? 100 : options.rpe * 10;
+    oneRmKg = (estimateLoad ?? oneRmKg) / (percent / 100);
+  }
+
   return {
-    oneRmKg: resolved.oneRmKg,
+    oneRmKg,
     source: resolved.source,
-    zones: trainingLoads(resolved.oneRmKg),
+    zones: trainingZoneLoads(oneRmKg),
     estimateLoad,
     estimateReps,
+    exercise: options?.exercise,
   };
 }

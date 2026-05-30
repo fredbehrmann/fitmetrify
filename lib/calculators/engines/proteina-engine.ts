@@ -14,6 +14,7 @@ import {
   buildDietPreferenceNote,
   buildNextSteps,
   buildProteinClassification,
+  buildProteinSourceKpis,
   buildSimpleInterpretation,
   buildSimpleKpis,
 } from "../proteina/interpret";
@@ -100,25 +101,33 @@ export const proteinaEngine: CalculatorEngine = {
       return null;
     }
 
+    const mealCountRaw = values.mealCount;
+    const mealCount =
+      typeof mealCountRaw === "string"
+        ? Number.parseInt(mealCountRaw, 10)
+        : parseNumber(mealCountRaw) ?? undefined;
+
     const result = calculateAdvancedProtein(
       weight,
       goal,
       trainingType,
       weeklyFrequency,
-      { leanMass, bodyFat }
+      { leanMass, bodyFat, dietPreference, mealCount }
     );
 
     const warnings: string[] = [];
     const dietNote = buildDietPreferenceNote(dietPreference);
     if (dietNote) warnings.push(dietNote);
 
-    return buildProteinResult(
-      weight,
-      goal,
-      result.idealGrams,
-      buildAdvancedInterpretation(weight, result, goal),
-      buildAdvancedKpis(result),
-      { warnings: warnings.length > 0 ? warnings : undefined }
-    );
+    return {
+      primaryValue: formatGrams(result.gramsPerMeal),
+      primaryUnit: "g/refeição",
+      primaryLabel: "Proteína por refeição",
+      classification: buildProteinClassification(goal),
+      interpretation: buildAdvancedInterpretation(weight, result, goal),
+      kpis: [...buildAdvancedKpis(result), ...buildProteinSourceKpis()],
+      nextSteps: buildNextSteps(),
+      warnings: warnings.length > 0 ? warnings : undefined,
+    };
   },
 };

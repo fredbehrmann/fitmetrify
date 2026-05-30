@@ -16,6 +16,14 @@ export const LBM_FREQUENCY_BONUS = 0.1;
 export const LBM_FREQUENCY_THRESHOLD = 4;
 
 export const DEFAULT_MEAL_COUNT = 4;
+export const PLANT_BASED_MULTIPLIER = 1.125;
+
+export const PROTEIN_SOURCE_EXAMPLES = [
+  { food: "Frango", gramsPer100: 31 },
+  { food: "Atum", gramsPer100: 29 },
+  { food: "Tofu", gramsPer100: 17 },
+  { food: "Lentilha", gramsPer100: 9 },
+] as const;
 
 export type ProteinGoal = keyof typeof PROTEIN_RANGES_BY_GOAL;
 export type TrainingType = "strength" | "cardio" | "mixed";

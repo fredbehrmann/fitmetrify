@@ -45,10 +45,17 @@ describe("classifyImc", () => {
     });
   });
 
-  it("classifies obesity grade III at lower boundary", () => {
-    expect(classifyImc(40)).toEqual({
-      label: "Obesidade grau III",
-      variant: "danger",
+  it("classifies elderly normal at BMI 26", () => {
+    expect(classifyImc(26, { age: 65 })).toEqual({
+      label: "Peso normal (referência ≥60a)",
+      variant: "success",
+    });
+  });
+
+  it("classifies elderly overweight at BMI 27", () => {
+    expect(classifyImc(27, { age: 60 })).toEqual({
+      label: "Sobrepeso",
+      variant: "warning",
     });
   });
 });

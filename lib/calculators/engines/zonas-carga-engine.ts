@@ -6,6 +6,7 @@ import {
   buildKpis,
   buildNextSteps,
 } from "../zonas-carga/interpret";
+import { percentFromRpe } from "../strength/rpe-mapping";
 import { formatLoadKg } from "../strength/format";
 
 function parseNumber(value: unknown): number | null {
@@ -15,14 +16,29 @@ function parseNumber(value: unknown): number | null {
 
 export const zonasCargaEngine: CalculatorEngine = {
   calculateSimple(values) {
+    const inputMode =
+      typeof values.inputMode === "string" ? values.inputMode : "percent";
     const oneRepMax = parseNumber(values.oneRepMax);
     const estimateLoad = parseNumber(values.estimateLoad);
     const estimateReps = parseNumber(values.estimateReps);
+    const rpe = parseNumber(values.rpe);
+    const exercise =
+      typeof values.exercise === "string" ? values.exercise : undefined;
+
+    let resolvedOneRm = oneRepMax ?? undefined;
+
+    if (inputMode === "rpe" && estimateLoad !== null && rpe !== null) {
+      const percent = percentFromRpe(rpe);
+      if (percent !== null) {
+        resolvedOneRm = estimateLoad / (percent / 100);
+      }
+    }
 
     const result = calculateZones(
-      oneRepMax ?? undefined,
+      resolvedOneRm,
       estimateLoad ?? undefined,
-      estimateReps ?? undefined
+      estimateReps ?? undefined,
+      { exercise, rpe: rpe ?? undefined }
     );
 
     if (result === null) return null;

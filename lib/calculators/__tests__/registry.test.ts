@@ -5,18 +5,19 @@ import {
   getCalculatorBySlug,
   getAllCalculatorSlugs,
 } from "../registry";
+import { MEASUREMENT_SLUGS } from "../content-standards";
 import { WEIGHT_VALIDATION } from "../validation";
 
 describe("calculator registry", () => {
-  it("registers exactly 15 calculators", () => {
-    expect(calculators).toHaveLength(15);
+  it("registers exactly 17 calculators", () => {
+    expect(calculators).toHaveLength(17);
   });
 
   it("has unique slugs with calculadora- prefix", () => {
     const slugs = getAllCalculatorSlugs();
     const uniqueSlugs = new Set(slugs);
 
-    expect(uniqueSlugs.size).toBe(15);
+    expect(uniqueSlugs.size).toBe(17);
     slugs.forEach((slug) => {
       expect(slug.startsWith("calculadora-")).toBe(true);
     });
@@ -75,5 +76,21 @@ describe("calculator registry", () => {
           expect(input.validation?.max).toBe(WEIGHT_VALIDATION.max);
         });
     });
+  });
+
+  it("requires scientific review date on every calculator", () => {
+    calculators.forEach((calculator) => {
+      expect(calculator.scientificReviewDate).toBeTruthy();
+    });
+  });
+
+  it("requires measurement guide on measurement-dependent calculators", () => {
+    calculators
+      .filter((calculator) => MEASUREMENT_SLUGS.has(calculator.slug))
+      .forEach((calculator) => {
+        expect(calculator.seoContent.measurementGuide?.length).toBeGreaterThan(
+          80
+        );
+      });
   });
 });

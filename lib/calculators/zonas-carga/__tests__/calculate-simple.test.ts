@@ -3,11 +3,13 @@ import { describe, expect, it } from "vitest";
 import { calculateZones } from "../calculate-simple";
 
 describe("calculateZones", () => {
-  it("calculates zones from direct 1RM", () => {
+  it("calculates six zones from direct 1RM", () => {
     const result = calculateZones(100);
 
     expect(result).not.toBeNull();
-    expect(result!.zones.map((z) => z.loadKg)).toEqual([90, 80, 70, 60]);
+    expect(result!.zones).toHaveLength(6);
+    expect(result!.zones[0]?.minLoadKg).toBe(50);
+    expect(result!.zones[0]?.maxLoadKg).toBe(60);
     expect(result!.source).toBe("direct");
   });
 

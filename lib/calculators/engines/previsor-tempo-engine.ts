@@ -16,7 +16,8 @@ import {
   buildSimpleInterpretation,
   buildSimpleKpis,
 } from "../previsor-tempo/interpret";
-import { formatDurationMinutes } from "../running/format";
+import { parseTimeToMinutes } from "../running/parse-inputs";
+import { formatDurationMinutes, formatPaceMinutesPerKm } from "../running/format";
 
 function parseNumber(value: unknown): number | null {
   if (typeof value === "number" && !Number.isNaN(value)) return value;
@@ -37,10 +38,34 @@ function parseRaceType(value: unknown): RaceType | undefined {
   return undefined;
 }
 
+function buildSplitPaceKpi(
+  predictedMinutes: number,
+  targetDistance: number
+): CalculatorResult["kpis"] {
+  if (targetDistance <= 0) return [];
+  const pace = predictedMinutes / targetDistance;
+  return [
+    {
+      label: "Pace médio previsto",
+      value: formatPaceMinutesPerKm(pace),
+      unit: "min/km",
+    },
+    {
+      label: "Pace-alvo por km (estratégia)",
+      value: formatPaceMinutesPerKm(pace),
+      unit: "para cumprir o tempo",
+    },
+  ];
+}
+
 export const previsorTempoEngine: CalculatorEngine = {
   calculateSimple(values) {
     const knownDistance = parseNumber(values.knownDistance);
-    const knownTime = parseNumber(values.knownTime);
+    const knownTime = parseTimeToMinutes(
+      values,
+      "knownTimeSeconds",
+      "knownTime"
+    );
     const targetDistance = parseNumber(values.targetDistance);
 
     if (
@@ -64,14 +89,24 @@ export const previsorTempoEngine: CalculatorEngine = {
       primaryLabel: "Tempo previsto",
       classification: buildSimpleClassification(),
       interpretation: buildSimpleInterpretation(result),
-      kpis: buildSimpleKpis(result),
+      kpis: [
+        ...buildSimpleKpis(result),
+        ...(buildSplitPaceKpi(
+          result.predictedTimeMinutes,
+          targetDistance
+        ) ?? []),
+      ],
       nextSteps: buildNextSteps(),
     } satisfies CalculatorResult;
   },
 
   calculateAdvanced(values) {
     const knownDistance = parseNumber(values.knownDistance);
-    const knownTime = parseNumber(values.knownTime);
+    const knownTime = parseTimeToMinutes(
+      values,
+      "knownTimeSeconds",
+      "knownTime"
+    );
     const targetDistance = parseNumber(values.targetDistance);
 
     if (
@@ -102,7 +137,11 @@ export const previsorTempoEngine: CalculatorEngine = {
       primaryLabel: "Tempo provável",
       classification: buildAdvancedClassification(),
       interpretation: buildAdvancedInterpretation(result),
-      kpis: buildAdvancedKpis(result),
+      kpis: [
+        ...buildAdvancedKpis(result),
+        ...(buildSplitPaceKpi(result.probableTimeMinutes, targetDistance) ??
+          []),
+      ],
       nextSteps: buildNextSteps(),
     } satisfies CalculatorResult;
   },

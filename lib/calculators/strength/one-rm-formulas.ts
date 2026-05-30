@@ -1,11 +1,20 @@
-import {
-  TRAINING_ZONE_PERCENTS,
-  type TrainingZonePercent,
-} from "./constants";
+import { TRAINING_ZONES } from "./constants";
 import { roundLoadHalfKg } from "./format";
 
 export type TrainingZoneLoad = {
-  percent: TrainingZonePercent;
+  id: string;
+  label: string;
+  minPercent: number;
+  maxPercent: number;
+  repsLabel: string;
+  minLoadKg: number;
+  maxLoadKg: number;
+  midLoadKg: number;
+};
+
+/** @deprecated legacy single-percent zone */
+export type LegacyTrainingZoneLoad = {
+  percent: number;
   loadKg: number;
 };
 
@@ -43,8 +52,28 @@ export function calculateAllOneRmEstimates(
   return { brzycki, epley, lombardi, average };
 }
 
-export function trainingLoads(oneRmKg: number): TrainingZoneLoad[] {
-  return TRAINING_ZONE_PERCENTS.map((percent) => ({
+export function trainingZoneLoads(oneRmKg: number): TrainingZoneLoad[] {
+  return TRAINING_ZONES.map((zone) => {
+    const minLoadKg = roundLoadHalfKg(oneRmKg * (zone.minPercent / 100));
+    const maxLoadKg = roundLoadHalfKg(oneRmKg * (zone.maxPercent / 100));
+    const midLoadKg = roundLoadHalfKg((minLoadKg + maxLoadKg) / 2);
+
+    return {
+      id: zone.id,
+      label: zone.label,
+      minPercent: zone.minPercent,
+      maxPercent: zone.maxPercent,
+      repsLabel: zone.repsLabel,
+      minLoadKg,
+      maxLoadKg,
+      midLoadKg,
+    };
+  });
+}
+
+/** @deprecated use trainingZoneLoads */
+export function trainingLoads(oneRmKg: number): LegacyTrainingZoneLoad[] {
+  return [90, 80, 70, 60].map((percent) => ({
     percent,
     loadKg: roundLoadHalfKg(oneRmKg * (percent / 100)),
   }));

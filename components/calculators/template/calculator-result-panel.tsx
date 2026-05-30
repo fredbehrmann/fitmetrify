@@ -13,16 +13,23 @@ import {
 import { CalculatorInterpretation } from "@/components/calculators/template/calculator-interpretation";
 import { MacroSplitChart } from "@/components/calculators/template/macro-split-chart";
 import { ResultRelatedLinks } from "@/components/calculators/template/result-related-links";
+import { ResultActionButtons } from "@/components/calculators/template/result-action-buttons";
+import { NextStepBanner } from "@/components/calculators/next-step-banner";
+import { HeartRateZonesTable } from "@/components/calculators/heart-rate-zones-table";
+import { getNextStepForSlug } from "@/lib/calc-context/next-steps";
 import { ResultScaleBar } from "@/components/calculators/template/result-scale-bar";
+import { HydrationUrineScale } from "@/components/calculators/hydration-urine-scale";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 type CalculatorResultPanelProps = {
+  slug: string;
   state: ResultPanelState;
   result?: CalculatorResult | null;
 };
 
 export function CalculatorResultPanel({
+  slug,
   state,
   result,
 }: CalculatorResultPanelProps) {
@@ -65,6 +72,8 @@ export function CalculatorResultPanel({
   }
 
   if (!result) return null;
+
+  const nextStep = getNextStepForSlug(slug);
 
   return (
     <div
@@ -113,10 +122,20 @@ export function CalculatorResultPanel({
         <MacroSplitChart segments={result.macroChart} />
       )}
 
+      {result.heartRateZones && result.heartRateZones.length > 0 && (
+        <div className="space-y-3">
+          <p className="text-sm font-semibold">Zonas de frequência cardíaca</p>
+          <HeartRateZonesTable zones={result.heartRateZones} />
+        </div>
+      )}
+
       <CalculatorInterpretation text={result.interpretation} />
 
       {result.warnings && result.warnings.length > 0 && (
-        <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-4 text-sm text-yellow-200">
+        <div
+          role="alert"
+          className="rounded-xl border border-yellow-500/40 bg-yellow-500/10 p-4 text-sm text-yellow-100"
+        >
           {result.warnings.map((warning) => (
             <p key={warning}>{warning}</p>
           ))}
@@ -136,6 +155,14 @@ export function CalculatorResultPanel({
           </ul>
         </div>
       )}
+
+      {result.showUrineScale && <HydrationUrineScale />}
+
+      {result.actions && result.actions.length > 0 && (
+        <ResultActionButtons actions={result.actions} />
+      )}
+
+      {nextStep && <NextStepBanner config={nextStep} />}
 
       {result.relatedSlugs && result.relatedSlugs.length > 0 && (
         <ResultRelatedLinks slugs={result.relatedSlugs} />

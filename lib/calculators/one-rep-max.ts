@@ -1,8 +1,9 @@
 import { Dumbbell } from "lucide-react";
 
-import { loadInput, repsInput, selectInput } from "./common-inputs";
-import { ONE_RM_METHOD_OPTIONS } from "./options";
+import { loadInput, repsInput, selectInput, sexInput, weightInput } from "./common-inputs";
+import { EXERCISE_OPTIONS, ONE_RM_METHOD_OPTIONS } from "./options";
 import type { Calculator } from "./types";
+import { SCIENTIFIC_REVIEW_DATE } from "./content-standards";
 
 export const oneRepMaxCalculator: Calculator = {
   slug: "calculadora-1rm",
@@ -18,6 +19,7 @@ export const oneRepMaxCalculator: Calculator = {
   simpleMode: true,
   advancedMode: true,
   formula: "1RM = carga × 36 / (37 - repetições) [Brzycki]",
+  scientificReviewDate: SCIENTIFIC_REVIEW_DATE,
   relatedSlugs: ["calculadora-zonas-carga", "calculadora-volume-treino"],
   seoContent: {
     about:
@@ -34,6 +36,20 @@ export const oneRepMaxCalculator: Calculator = {
     repsInput("simple"),
     loadInput("advanced"),
     repsInput("advanced"),
+    selectInput("advanced", {
+      id: "exercise",
+      name: "exercise",
+      label: "Exercício",
+      options: [...EXERCISE_OPTIONS],
+      validation: { required: true },
+    }),
+    weightInput("advanced", {
+      id: "weight",
+      name: "weight",
+      label: "Peso corporal",
+      helpText: "Necessário para classificação de força relativa.",
+    }),
+    sexInput("advanced"),
     selectInput("advanced", {
       id: "method",
       name: "method",

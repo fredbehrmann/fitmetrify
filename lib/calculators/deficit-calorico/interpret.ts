@@ -86,6 +86,34 @@ export function buildSimpleClassification(
   return { label: entry.label, variant: entry.variant };
 }
 
+const METABOLIC_ADAPTATION_NOTE =
+  "Em déficits prolongados o metabolismo se adapta. Considere semanas de recarga calórica (diet breaks) a cada 8–12 semanas.";
+
+export function buildSimpleWarnings(
+  result: SimpleDeficitResult,
+  strategy: DeficitStrategy,
+  sex?: Sex
+): string[] {
+  const warnings: string[] = [];
+
+  if (sex) {
+    const minCalories = MIN_DAILY_CALORIES_BY_SEX[sex];
+    if (result.targetCalories < minCalories) {
+      warnings.push(
+        `Atenção: ${formatKcal(result.targetCalories)} kcal está abaixo do mínimo recomendado de ${formatKcal(minCalories)} kcal/dia. Déficits abaixo deste valor aumentam o risco de perda muscular, fadiga e deficiências nutricionais. Reduza o percentual de déficit.`
+      );
+    }
+  }
+
+  if (strategy === "aggressive") {
+    warnings.push(METABOLIC_ADAPTATION_NOTE);
+  }
+
+  warnings.push(HEALTH_REMINDER);
+
+  return warnings;
+}
+
 export function buildAdvancedWarnings(
   result: AdvancedDeficitResult,
   sex: Sex,
@@ -138,6 +166,10 @@ export function buildAdvancedWarnings(
     warnings.push(
       "Com treino intenso, déficits muito altos podem prejudicar recuperação e performance."
     );
+  }
+
+  if (result.requestedWeeks > 8) {
+    warnings.push(METABOLIC_ADAPTATION_NOTE);
   }
 
   warnings.push(HEALTH_REMINDER);

@@ -11,8 +11,8 @@ describe("calculateAdvancedWater", () => {
       highCaffeine: true,
     });
 
-    expect(result.baseMl).toBe(2800);
-    expect(result.totalMl).toBe(2800 + 500 + 400 + 250);
+    expect(result.baseMl).toBe(3200);
+    expect(result.totalMl).toBe(3200 + 500 + 250);
     expect(result.adjustments).toHaveLength(3);
   });
 

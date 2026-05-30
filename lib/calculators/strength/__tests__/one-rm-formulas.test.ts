@@ -5,6 +5,7 @@ import {
   calculateAllOneRmEstimates,
   epley1RM,
   trainingLoads,
+  trainingZoneLoads,
 } from "../one-rm-formulas";
 
 describe("one-rm-formulas", () => {
@@ -17,7 +18,14 @@ describe("one-rm-formulas", () => {
     expect(epley1RM(80, 8)).toBeCloseTo(101.33, 1);
   });
 
-  it("builds training zones from 100 kg 1RM", () => {
+  it("builds six training zones from 100 kg 1RM", () => {
+    const zones = trainingZoneLoads(100);
+    expect(zones).toHaveLength(6);
+    expect(zones[0]?.minLoadKg).toBe(50);
+    expect(zones[5]?.maxLoadKg).toBe(100);
+  });
+
+  it("builds legacy training zones from 100 kg 1RM", () => {
     const zones = trainingLoads(100);
     expect(zones.map((z) => z.loadKg)).toEqual([90, 80, 70, 60]);
   });

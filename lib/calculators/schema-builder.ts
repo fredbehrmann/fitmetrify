@@ -76,8 +76,14 @@ export function buildFieldSchema(input: CalculatorInput): z.ZodTypeAny {
     case "checkbox":
       return z.boolean().default(false);
 
-    case "time":
-      return z.coerce.number().optional();
+    case "time": {
+      const schema = applyNumberValidation(
+        z.coerce.number({ message: "Informe um tempo válido" }).min(0),
+        validation
+      );
+      if (validation?.required) return schema;
+      return schema.optional();
+    }
 
     default:
       return z.unknown().optional();
@@ -105,6 +111,11 @@ export function getDefaultValues(
 
     if (input.type === "checkbox") {
       acc[input.name] = false;
+      return acc;
+    }
+
+    if (input.type === "time") {
+      acc[input.name] = 0;
       return acc;
     }
 

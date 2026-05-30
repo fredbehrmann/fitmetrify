@@ -1,7 +1,8 @@
 import { Gauge } from "lucide-react";
 
-import { numberInput } from "./common-inputs";
+import { numberInput, selectInput } from "./common-inputs";
 import type { Calculator } from "./types";
+import { SCIENTIFIC_REVIEW_DATE } from "./content-standards";
 
 export const paceVelocidadeCalculator: Calculator = {
   slug: "calculadora-pace-velocidade",
@@ -16,26 +17,46 @@ export const paceVelocidadeCalculator: Calculator = {
   simpleMode: true,
   advancedMode: false,
   formula: "Velocidade (km/h) = 60 / pace (min/km)",
+  scientificReviewDate: SCIENTIFIC_REVIEW_DATE,
   relatedSlugs: ["calculadora-pace", "calculadora-previsor-tempo"],
   seoContent: {
     about:
       "Este conversor traduz entre pace (min/km) e velocidade (km/h), duas formas de expressar a mesma intensidade de corrida.",
     howItWorks:
-      "Informe o pace em minutos por quilômetro (ex.: 5:30 = 5,5). A velocidade é calculada como 60 ÷ pace, resultando em km/h equivalentes à mesma intensidade.",
+      "Escolha se deseja informar pace (h/min/seg por km) ou velocidade (km/h). A conversão é bidirecional: 60 ÷ pace = km/h ou 60 ÷ km/h = pace.",
     interpretationGuide:
-      "Use o valor em km/h para esteiras, ciclismo comparativo ou planilhas que trabalham com velocidade. Para voltar ao pace, use a calculadora de pace com distância e tempo.",
+      "Use km/h para esteiras e planilhas; use pace para corrida de rua. A tabela de referência mostra equivalências comuns de 4 a 20 km/h.",
     limitations:
-      "Conversão assume ritmo constante. Em intervalados, calcule cada segmento separadamente. Esteira pode exigir calibração por diferença de atrito e ausência de deslocamento real.",
+      "Conversão assume ritmo constante. Em intervalados, calcule cada segmento separadamente.",
   },
   inputs: [
+    selectInput("simple", {
+      id: "inputMode",
+      name: "inputMode",
+      label: "Converter a partir de",
+      options: [
+        { value: "pace", label: "Pace (min/km)" },
+        { value: "speed", label: "Velocidade (km/h)" },
+      ],
+      validation: { required: true },
+      defaultValue: "pace",
+    }),
+    {
+      id: "timeSeconds",
+      name: "timeSeconds",
+      label: "Pace por km",
+      type: "time",
+      mode: "simple",
+      helpText: "Tempo para percorrer 1 km (ex.: 0h 05min 30seg).",
+      validation: { required: true, min: 60, max: 7200 },
+    },
     numberInput("simple", {
-      id: "paceMinutes",
-      name: "paceMinutes",
-      label: "Pace",
-      unit: "min/km",
-      placeholder: "Ex: 5.5",
-      helpText: "Tempo em minutos por quilômetro (ex: 5:30 = 5.5).",
-      validation: { required: true, min: 2, max: 20, step: 0.01 },
+      id: "speedKmh",
+      name: "speedKmh",
+      label: "Velocidade",
+      unit: "km/h",
+      placeholder: "Ex: 12",
+      validation: { min: 1, max: 40, step: 0.1 },
     }),
   ],
   faq: [

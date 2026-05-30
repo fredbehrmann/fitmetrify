@@ -28,6 +28,9 @@ export function buildCalculatorMetadata(calculator: Calculator): Metadata {
       title: ogTitle,
       description: calculator.seoDescription,
     },
+    other: {
+      "twitter:url": pageUrl,
+    },
   };
 }
 
@@ -56,6 +59,9 @@ export function buildHubMetadata(
       card: "summary_large_image",
       title: `${title} | ${SITE_NAME}`,
       description,
+    },
+    other: {
+      "twitter:url": pageUrl,
     },
   };
 }

@@ -2,6 +2,7 @@ import { Zap } from "lucide-react";
 
 import { loadInput, numberInput, repsInput } from "./common-inputs";
 import type { Calculator } from "./types";
+import { SCIENTIFIC_REVIEW_DATE } from "./content-standards";
 
 export const volumeTreinoCalculator: Calculator = {
   slug: "calculadora-volume-treino",
@@ -16,6 +17,7 @@ export const volumeTreinoCalculator: Calculator = {
   simpleMode: true,
   advancedMode: false,
   formula: "Volume = séries × repetições × carga",
+  scientificReviewDate: SCIENTIFIC_REVIEW_DATE,
   relatedSlugs: ["calculadora-1rm", "calculadora-zonas-carga"],
   seoContent: {
     about:

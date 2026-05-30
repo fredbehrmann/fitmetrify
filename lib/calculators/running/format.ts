@@ -6,6 +6,10 @@ export function formatPaceMinutesPerKm(paceMinPerKm: number): string {
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }
 
+export function formatPaceMinutesPerMile(paceMinPerKm: number): string {
+  return formatPaceMinutesPerKm(paceMinPerKm * 1.60934);
+}
+
 /** Formats duration in minutes as mm:ss or h:mm:ss when >= 60 min. */
 export function formatDurationMinutes(totalMinutes: number): string {
   const totalSeconds = Math.round(totalMinutes * 60);

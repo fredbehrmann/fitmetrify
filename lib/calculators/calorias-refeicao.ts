@@ -1,7 +1,13 @@
 import { Calculator } from "lucide-react";
 
 import { caloriesInput, selectInput } from "./common-inputs";
-import { MEAL_COUNT_OPTIONS } from "./options";
+import {
+  MAIN_MEAL_OPTIONS,
+  MEAL_COUNT_OPTIONS,
+  MEAL_PROTOCOL_OPTIONS,
+  TRAINING_TIME_OPTIONS,
+} from "./options";
+import { SCIENTIFIC_REVIEW_DATE } from "./content-standards";
 import type { Calculator as CalculatorType } from "./types";
 
 export const caloriasRefeicaoCalculator: CalculatorType = {
@@ -15,18 +21,19 @@ export const caloriasRefeicaoCalculator: CalculatorType = {
   seoDescription:
     "Divida suas calorias diárias entre refeições de acordo com sua rotina alimentar.",
   simpleMode: true,
-  advancedMode: false,
-  formula: "Calorias por refeição = calorias diárias / número de refeições",
+  advancedMode: true,
+  formula: "Calorias por refeição conforme protocolo (uniforme, pré/pós-treino, jejum)",
+  scientificReviewDate: SCIENTIFIC_REVIEW_DATE,
   relatedSlugs: ["calculadora-macros", "calculadora-gasto-calorico"],
   seoContent: {
     about:
       "Dividir calorias de forma equilibrada entre refeições facilita o controle alimentar e a adesão ao plano nutricional, especialmente em dietas com metas calóricas definidas.",
     howItWorks:
-      "Informe o total de calorias diárias e o número de refeições. A calculadora divide igualmente as calorias por refeição (calorias diárias ÷ número de refeições).",
+      "Informe calorias diárias e número de refeições para divisão igualitária. No avançado, escolha horário de treino, protocolo alimentar (uniforme, pré/pós-treino maior, jejum 16:8 ou 18:6) e refeição principal.",
     interpretationGuide:
-      "Quando disponível, o resultado mostrará kcal por refeição. Ajuste pré e pós-treino conforme sua rotina — a divisão igual é ponto de partida, não regra rígida.",
+      "O resultado mostra kcal, percentual e proteína estimada por refeição. Avisos aparecem quando alguma refeição fica abaixo de 25 g de proteína. Ajuste pré e pós-treino conforme sua rotina.",
     limitations:
-      "Distribuição uniforme não considera jejum, turnos de trabalho ou refeições maiores no pós-treino. Macros por refeição exigem a calculadora de macronutrientes. Motor de cálculo em desenvolvimento nesta versão.",
+      "Distribuições são sugestões — turnos de trabalho, preferências e digestão individual podem exigir ajustes. Proteína estimada assume 25–30% das calorias; use a calculadora de macros para metas precisas.",
   },
   inputs: [
     caloriesInput("simple"),
@@ -35,6 +42,35 @@ export const caloriasRefeicaoCalculator: CalculatorType = {
       name: "mealCount",
       label: "Número de refeições",
       options: [...MEAL_COUNT_OPTIONS],
+      validation: { required: true },
+    }),
+    caloriesInput("advanced"),
+    selectInput("advanced", {
+      id: "mealCount",
+      name: "mealCount",
+      label: "Número de refeições",
+      options: [...MEAL_COUNT_OPTIONS],
+      validation: { required: true },
+    }),
+    selectInput("advanced", {
+      id: "trainingTime",
+      name: "trainingTime",
+      label: "Horário estimado de treino",
+      options: [...TRAINING_TIME_OPTIONS],
+      validation: { required: true },
+    }),
+    selectInput("advanced", {
+      id: "mealProtocol",
+      name: "mealProtocol",
+      label: "Protocolo alimentar",
+      options: [...MEAL_PROTOCOL_OPTIONS],
+      validation: { required: true },
+    }),
+    selectInput("advanced", {
+      id: "mainMeal",
+      name: "mainMeal",
+      label: "Maior refeição",
+      options: [...MAIN_MEAL_OPTIONS],
       validation: { required: true },
     }),
   ],

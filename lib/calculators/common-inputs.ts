@@ -15,7 +15,14 @@ import {
 type InputOverrides = Partial<
   Pick<
     CalculatorInput,
-    "id" | "name" | "label" | "helpText" | "placeholder" | "defaultValue"
+    | "id"
+    | "name"
+    | "label"
+    | "helpText"
+    | "placeholder"
+    | "defaultValue"
+    | "validation"
+    | "unit"
   >
 >;
 
@@ -260,7 +267,7 @@ export function selectInput(
   mode: InputMode,
   config: Pick<
     CalculatorInput,
-    "id" | "name" | "label" | "options" | "helpText" | "validation"
+    "id" | "name" | "label" | "options" | "helpText" | "validation" | "defaultValue"
   >,
   overrides?: InputOverrides
 ): CalculatorInput {

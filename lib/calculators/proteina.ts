@@ -8,6 +8,7 @@ import {
 } from "./common-inputs";
 import { PROTEIN_GOAL_OPTIONS, TRAINING_TYPE_OPTIONS } from "./options";
 import type { Calculator } from "./types";
+import { SCIENTIFIC_REVIEW_DATE } from "./content-standards";
 
 export const proteinaCalculator: Calculator = {
   slug: "calculadora-proteina",
@@ -23,7 +24,12 @@ export const proteinaCalculator: Calculator = {
   simpleMode: true,
   advancedMode: true,
   formula: "Proteína = peso × faixa g/kg conforme objetivo",
-  relatedSlugs: ["calculadora-macros", "calculadora-deficit-calorico"],
+  scientificReviewDate: SCIENTIFIC_REVIEW_DATE,
+  relatedSlugs: [
+    "calculadora-macros",
+    "calculadora-deficit-calorico",
+    "calculadora-percentual-gordura",
+  ],
   seoContent: {
     about:
       "A proteína é essencial para manutenção muscular, recuperação e saciedade. A ingestão ideal varia conforme seu objetivo: saúde geral, emagrecimento, hipertrofia ou performance atlética.",
@@ -74,6 +80,16 @@ export const proteinaCalculator: Calculator = {
       unit: "dias",
       placeholder: "Ex: 4",
       validation: { required: true, min: 0, max: 7, step: 1 },
+    }),
+    selectInput("advanced", {
+      id: "mealCount",
+      name: "mealCount",
+      label: "Refeições por dia",
+      options: [
+        { value: "4", label: "4 refeições" },
+        { value: "5", label: "5 refeições" },
+      ],
+      validation: { required: true },
     }),
     selectInput("advanced", {
       id: "dietPreference",

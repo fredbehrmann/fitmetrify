@@ -7,8 +7,9 @@ import {
   selectInput,
   weightInput,
 } from "./common-inputs";
-import { GOAL_OPTIONS } from "./options";
+import { GOAL_OPTIONS, MACRO_INPUT_MODE_OPTIONS } from "./options";
 import type { Calculator } from "./types";
+import { SCIENTIFIC_REVIEW_DATE } from "./content-standards";
 
 export const macrosCalculator: Calculator = {
   slug: "calculadora-macros",
@@ -24,6 +25,7 @@ export const macrosCalculator: Calculator = {
   advancedMode: true,
   formula:
     "Proteína 4 kcal/g | Carboidrato 4 kcal/g | Gordura 9 kcal/g",
+  scientificReviewDate: SCIENTIFIC_REVIEW_DATE,
   relatedSlugs: ["calculadora-proteina", "calculadora-gasto-calorico"],
   seoContent: {
     about:
@@ -38,11 +40,42 @@ export const macrosCalculator: Calculator = {
   inputs: [
     caloriesInput("simple"),
     selectInput("simple", {
+      id: "inputMode",
+      name: "inputMode",
+      label: "Modo de cálculo",
+      options: [...MACRO_INPUT_MODE_OPTIONS],
+      defaultValue: "percent",
+      validation: { required: true },
+    }),
+    selectInput("simple", {
       id: "goal",
       name: "goal",
       label: "Objetivo",
       options: [...GOAL_OPTIONS],
       validation: { required: true },
+    }),
+    weightInput("simple", {
+      id: "weight",
+      name: "weight",
+      label: "Peso corporal",
+      helpText: "Obrigatório no modo g/kg. Pode vir da jornada anterior.",
+      validation: { required: false, min: 30, max: 300, step: 0.1 },
+    }),
+    numberInput("simple", {
+      id: "proteinPerKg",
+      name: "proteinPerKg",
+      label: "Proteína",
+      unit: "g/kg",
+      placeholder: "Ex: 1.8",
+      validation: { min: 0.8, max: 3, step: 0.1 },
+    }),
+    numberInput("simple", {
+      id: "fatMinPerKg",
+      name: "fatMinPerKg",
+      label: "Gordura mínima",
+      unit: "g/kg",
+      placeholder: "Ex: 1.0",
+      validation: { min: 0.3, max: 2, step: 0.1 },
     }),
     caloriesInput("advanced"),
     weightInput("advanced"),
@@ -65,8 +98,9 @@ export const macrosCalculator: Calculator = {
     checkboxInput("advanced", {
       id: "adjustCarbs",
       name: "adjustCarbs",
-      label: "Carboidrato ajustável",
-      helpText: "Permite ajustar carboidratos conforme dias de treino.",
+      label: "Dia de treino / Dia de descanso",
+      helpText:
+        "Distribui carboidratos com +20% nos dias de treino e −20% nos dias de descanso, mantendo proteína constante.",
     }),
     numberInput("advanced", {
       id: "trainingDays",

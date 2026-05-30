@@ -25,6 +25,7 @@ services:
       - "3001:3001"
     environment:
       DATABASE_URL: postgresql://fitmetrify:fitmetrify@postgres:5432/fitmetrify
+      NEXT_PUBLIC_BASE_URL: http://localhost:3001
       NEXT_PUBLIC_APP_URL: http://localhost:3001
     volumes:
       - .:/app
@@ -43,6 +44,7 @@ services:
       - "3001:3001"
     environment:
       DATABASE_URL: postgresql://fitmetrify:fitmetrify@postgres:5432/fitmetrify
+      NEXT_PUBLIC_BASE_URL: http://localhost:3001
       NEXT_PUBLIC_APP_URL: http://localhost:3001
     depends_on:
       postgres:

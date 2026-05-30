@@ -85,22 +85,29 @@ export function buildAdvancedKpis(result: AdvancedProteinResult): ResultKpi[] {
       unit: `g (${result.mealCount} refeições)`,
     },
     {
-      label: "Exemplo de distribuição",
-      value: `${formatGrams(result.idealGrams)} g/dia em ${result.mealCount} refeições = ${formatGrams(result.gramsPerMeal)} g/refeição`,
+      label: "Total diário",
+      value: formatGrams(result.idealGrams),
+      unit: "g/dia",
     }
   );
 
   return kpis;
 }
 
+export function buildProteinSourceKpis(): ResultKpi[] {
+  return [
+    { label: "Frango", value: "31", unit: "g/100g" },
+    { label: "Atum", value: "29", unit: "g/100g" },
+    { label: "Tofu", value: "17", unit: "g/100g" },
+    { label: "Lentilha", value: "9", unit: "g/100g" },
+  ];
+}
+
 export function buildDietPreferenceNote(
   preference?: DietPreference
 ): string | undefined {
-  if (preference === "vegetarian") {
-    return "Como vegetariano, combine ovos, laticínios, leguminosas e proteínas vegetais para atingir a meta diária.";
-  }
-  if (preference === "vegan") {
-    return "Como vegano, priorize leguminosas, tofu, tempeh e proteínas vegetais complementares ao longo do dia.";
+  if (preference === "vegetarian" || preference === "vegan") {
+    return "Vegetarianos e veganos devem priorizar combinação de leguminosas + cereais e aumentar a ingestão em ~10–15% pela menor digestibilidade das proteínas vegetais.";
   }
   return undefined;
 }

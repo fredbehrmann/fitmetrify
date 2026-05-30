@@ -1,12 +1,16 @@
 import type { CalculatorEngine, CalculatorResult } from "./types";
 import { calculateAdvancedMacros } from "../macros/calculate-advanced";
-import { calculateSimpleMacros } from "../macros/calculate-simple";
+import {
+  calculateMacrosFromGramsPerKg,
+  calculateSimpleMacros,
+} from "../macros/calculate-simple";
 import { MACRO_SPLITS_BY_GOAL, type MacroGoal } from "../macros/constants";
 import { formatKcal } from "../macros/format";
 import {
   buildAdvancedInterpretation,
   buildAdvancedKpis,
   buildClassification,
+  buildFoodExampleKpis,
   buildMacroChart,
   buildNextSteps,
   buildSimpleInterpretation,
@@ -31,17 +35,16 @@ function parseBoolean(value: unknown): boolean {
 
 function buildSimpleResult(
   calories: number,
-  goal: MacroGoal
+  goal: MacroGoal,
+  profile: ReturnType<typeof calculateSimpleMacros>
 ): CalculatorResult {
-  const profile = calculateSimpleMacros(calories, goal);
-
   return {
     primaryValue: formatKcal(calories),
     primaryUnit: "kcal/dia",
     primaryLabel: "Calorias alvo",
     classification: buildClassification(goal),
     interpretation: buildSimpleInterpretation(calories, goal, profile),
-    kpis: buildSimpleKpis(profile),
+    kpis: [...buildSimpleKpis(profile), ...buildFoodExampleKpis(profile)],
     macroChart: buildMacroChart(profile),
     nextSteps: buildNextSteps(),
   };
@@ -62,7 +65,10 @@ function buildAdvancedResult(
       variant: "default",
     },
     interpretation: buildAdvancedInterpretation(calories, result),
-    kpis: buildAdvancedKpis(result),
+    kpis: [
+      ...buildAdvancedKpis(result),
+      ...buildFoodExampleKpis(result.training),
+    ],
     macroChart: buildMacroChart(chartProfile),
     nextSteps: buildNextSteps(),
   };
@@ -72,10 +78,44 @@ export const macrosEngine: CalculatorEngine = {
   calculateSimple(values) {
     const calories = parseNumber(values.calories);
     const goal = parseGoal(values.goal);
+    const inputMode =
+      values.inputMode === "gramsPerKg" ? "gramsPerKg" : "percent";
 
     if (calories === null || goal === null) return null;
 
-    return buildSimpleResult(calories, goal);
+    if (inputMode === "gramsPerKg") {
+      const weight = parseNumber(values.weight);
+      const proteinPerKg = parseNumber(values.proteinPerKg) ?? 1.8;
+      const fatMinPerKg = parseNumber(values.fatMinPerKg) ?? 1.0;
+
+      if (weight === null) return null;
+
+      const profile = calculateMacrosFromGramsPerKg(
+        weight,
+        calories,
+        proteinPerKg,
+        fatMinPerKg
+      );
+
+      if (profile === null) {
+        return {
+          primaryValue: formatKcal(calories),
+          primaryUnit: "kcal/dia",
+          primaryLabel: "Calorias alvo",
+          interpretation:
+            "Proteína e gordura em g/kg ultrapassam o alvo calórico. Reduza os valores ou aumente as calorias.",
+          warnings: [
+            "A soma de proteína e gordura mínimas excede o total de calorias.",
+          ],
+          nextSteps: buildNextSteps(),
+        };
+      }
+
+      return buildSimpleResult(calories, goal, profile);
+    }
+
+    const profile = calculateSimpleMacros(calories, goal);
+    return buildSimpleResult(calories, goal, profile);
   },
 
   calculateAdvanced(values) {
@@ -118,7 +158,7 @@ export const macrosEngine: CalculatorEngine = {
         interpretation:
           "Proteína e gordura mínimas (em g/kg) ultrapassam o alvo calórico informado. Reduza os valores em g/kg ou aumente as calorias diárias.",
         warnings: [
-          "A soma de proteína e gordura mínimas excede o total de calorias. Ajuste os parâmetros.",
+          "A soma de proteína e gordura mínimas excede o total de calorias. Ajuste os parámetros.",
         ],
         nextSteps: buildNextSteps(),
       };

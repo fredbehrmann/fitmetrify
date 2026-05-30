@@ -10,6 +10,7 @@ import {
 import { DEFICIT_STRATEGY_OPTIONS } from "./options";
 import { CALORIES_VALIDATION } from "./validation";
 import type { Calculator } from "./types";
+import { SCIENTIFIC_REVIEW_DATE } from "./content-standards";
 
 export const deficitCaloricoCalculator: Calculator = {
   slug: "calculadora-deficit-calorico",
@@ -24,6 +25,7 @@ export const deficitCaloricoCalculator: Calculator = {
   simpleMode: true,
   advancedMode: true,
   formula: "Calorias alvo = gasto diário × (1 - percentual de déficit)",
+  scientificReviewDate: SCIENTIFIC_REVIEW_DATE,
   relatedSlugs: ["calculadora-gasto-calorico", "calculadora-proteina"],
   seoContent: {
     about:
@@ -51,6 +53,14 @@ export const deficitCaloricoCalculator: Calculator = {
       label: "Objetivo de déficit",
       options: [...DEFICIT_STRATEGY_OPTIONS],
       validation: { required: true },
+    }),
+    sexInput("simple", {
+      id: "sexSimple",
+      name: "sex",
+      label: "Sexo (opcional, para alerta de piso calórico)",
+      helpText:
+        "Usado para validar se as calorias alvo ficam acima do mínimo seguro.",
+      validation: { required: false },
     }),
     numberInput("advanced", {
       id: "dailyExpenditure",

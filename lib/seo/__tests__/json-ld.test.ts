@@ -39,7 +39,8 @@ describe("json-ld builders", () => {
   });
 
   it("builds WebApplication with absolute url", () => {
-    process.env.NEXT_PUBLIC_APP_URL = "https://fitmetrify.com";
+    process.env.NEXT_PUBLIC_BASE_URL = "https://fitmetrify.com";
+    delete process.env.NEXT_PUBLIC_APP_URL;
     const url = absoluteUrl("/calculadora-imc");
     const json = buildWebApplicationJsonLd(imcCalculator, url);
 
@@ -50,7 +51,8 @@ describe("json-ld builders", () => {
   });
 
   it("aggregates three graphs for calculator page", () => {
-    process.env.NEXT_PUBLIC_APP_URL = "https://fitmetrify.com";
+    process.env.NEXT_PUBLIC_BASE_URL = "https://fitmetrify.com";
+    delete process.env.NEXT_PUBLIC_APP_URL;
     const graphs = buildCalculatorPageJsonLd(imcCalculator);
 
     expect(graphs).toHaveLength(3);

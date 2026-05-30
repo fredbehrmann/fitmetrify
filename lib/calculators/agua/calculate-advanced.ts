@@ -1,15 +1,15 @@
 import {
   CAFFEINE_ML,
+  CLIMATE_ML_PER_KG_BONUS,
   CUP_ML,
   HEAVY_SWEATING_ML,
-  HOT_CLIMATE_ML,
+  ML_PER_KG,
   ML_PER_WORKOUT_HOUR,
+  SENIOR_ML_PER_KG,
+  type AgeGroup,
   type ExerciseType,
 } from "./constants";
-import {
-  calculateSimpleWater,
-  type WaterResult,
-} from "./calculate-simple";
+import { getMlPerKg, type WaterResult } from "./calculate-simple";
 
 export type WaterAdjustment = {
   label: string;
@@ -19,6 +19,7 @@ export type WaterAdjustment = {
 export type AdvancedWaterResult = WaterResult & {
   adjustments: WaterAdjustment[];
   exerciseType?: ExerciseType;
+  ageGroup: AgeGroup;
 };
 
 export type AdvancedWaterOptions = {
@@ -27,15 +28,35 @@ export type AdvancedWaterOptions = {
   highCaffeine?: boolean;
   heavySweating?: boolean;
   exerciseType?: ExerciseType;
+  ageGroup?: AgeGroup;
 };
 
 export function calculateAdvancedWater(
   weightKg: number,
   options: AdvancedWaterOptions
 ): AdvancedWaterResult {
-  const base = calculateSimpleWater(weightKg);
+  const ageGroup = options.ageGroup ?? "adult";
   const adjustments: WaterAdjustment[] = [];
-  let totalMl = base.baseMl;
+
+  let mlPerKg = getMlPerKg(ageGroup);
+
+  if (ageGroup === "senior") {
+    adjustments.push({
+      label: "Faixa etária ≥60 anos (+5 ml/kg)",
+      ml: weightKg * (SENIOR_ML_PER_KG - ML_PER_KG),
+    });
+  }
+
+  if (options.hotClimate) {
+    mlPerKg += CLIMATE_ML_PER_KG_BONUS;
+    adjustments.push({
+      label: "Clima tropical (+5 ml/kg na base)",
+      ml: weightKg * CLIMATE_ML_PER_KG_BONUS,
+    });
+  }
+
+  const baseMl = weightKg * mlPerKg;
+  let totalMl = baseMl;
 
   const workoutTime = options.workoutTime ?? 0;
   if (workoutTime > 0) {
@@ -45,11 +66,6 @@ export function calculateAdvancedWater(
       ml,
     });
     totalMl += ml;
-  }
-
-  if (options.hotClimate) {
-    adjustments.push({ label: "Clima quente", ml: HOT_CLIMATE_ML });
-    totalMl += HOT_CLIMATE_ML;
   }
 
   if (options.highCaffeine) {
@@ -63,11 +79,13 @@ export function calculateAdvancedWater(
   }
 
   return {
-    ...base,
+    baseMl,
     totalMl,
     liters: totalMl / 1000,
     cups: Math.round(totalMl / CUP_ML),
+    mlPerKg,
     adjustments,
     exerciseType: options.exerciseType,
+    ageGroup,
   };
 }

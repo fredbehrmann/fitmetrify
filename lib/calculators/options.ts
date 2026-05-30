@@ -63,8 +63,79 @@ export const RUNNER_EXPERIENCE_OPTIONS = [
 ] as const;
 
 export const MEAL_COUNT_OPTIONS = [
+  { value: "2", label: "2 refeições" },
   { value: "3", label: "3 refeições" },
   { value: "4", label: "4 refeições" },
   { value: "5", label: "5 refeições" },
   { value: "6", label: "6 refeições" },
+] as const;
+
+export const BIOTYPE_OPTIONS = [
+  { value: "ectomorph", label: "Ectomorfo" },
+  { value: "mesomorph", label: "Mesomorfo" },
+  { value: "endomorph", label: "Endomorfo" },
+] as const;
+
+export const TRAINING_TIME_OPTIONS = [
+  { value: "morning", label: "Manhã" },
+  { value: "afternoon", label: "Tarde" },
+  { value: "evening", label: "Noite" },
+  { value: "none", label: "Não treino" },
+] as const;
+
+export const MEAL_PROTOCOL_OPTIONS = [
+  { value: "uniform", label: "Distribuição uniforme" },
+  { value: "pre-workout", label: "Pré-treino maior" },
+  { value: "post-workout", label: "Pós-treino maior" },
+  { value: "fasting-16-8", label: "Jejum 16:8" },
+  { value: "fasting-18-6", label: "Jejum 18:6" },
+] as const;
+
+export const MAIN_MEAL_OPTIONS = [
+  { value: "breakfast", label: "Café da manhã" },
+  { value: "lunch", label: "Almoço" },
+  { value: "dinner", label: "Jantar" },
+] as const;
+
+export const MACRO_INPUT_MODE_OPTIONS = [
+  { value: "percent", label: "Por percentual (%)" },
+  { value: "gramsPerKg", label: "Por gramas/kg (musculação)" },
+] as const;
+
+export const EXERCISE_OPTIONS = [
+  { value: "bench-press", label: "Supino Reto" },
+  { value: "incline-bench", label: "Supino Inclinado" },
+  { value: "overhead-press", label: "Desenvolvimento" },
+  { value: "squat", label: "Agachamento Livre" },
+  { value: "deadlift", label: "Terra" },
+  { value: "row", label: "Remada" },
+  { value: "pull-up", label: "Barra Fixa" },
+  { value: "leg-press", label: "Leg Press" },
+  { value: "curl", label: "Rosca Direta" },
+  { value: "other", label: "Outro" },
+] as const;
+
+export const ZONE_INPUT_MODE_OPTIONS = [
+  { value: "percent", label: "Percentual do 1RM" },
+  { value: "rpe", label: "RPE (1–10)" },
+] as const;
+
+export const MAX_HR_FORMULA_OPTIONS = [
+  { value: "tanaka", label: "Tanaka (2001) — recomendada" },
+  { value: "fox", label: "Fox (1971) — clássica" },
+  { value: "gellish", label: "Gellish (2007) — treinados" },
+] as const;
+
+export const FITNESS_LEVEL_OPTIONS = [
+  { value: "beginner", label: "Iniciante" },
+  { value: "intermediate", label: "Intermediário" },
+  { value: "advanced", label: "Avançado" },
+  { value: "athlete", label: "Atleta" },
+] as const;
+
+export const HR_TRAINING_GOAL_OPTIONS = [
+  { value: "fat-burn", label: "Queima de gordura" },
+  { value: "aerobic", label: "Aeróbico" },
+  { value: "threshold", label: "Limiar anaeróbico" },
+  { value: "vo2max", label: "VO2max" },
 ] as const;

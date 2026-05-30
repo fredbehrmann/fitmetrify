@@ -23,6 +23,10 @@ export const SEO_LINK_GROUPS: SeoLinkGroup[] = [
         label: "Calculadora de déficit calórico",
       },
       { href: "/calculadora-peso-ideal", label: "Calculadora de peso ideal" },
+      {
+        href: "/calculadora-percentual-gordura",
+        label: "Calculadora de percentual de gordura",
+      },
     ],
   },
   {
@@ -54,6 +58,10 @@ export const SEO_LINK_GROUPS: SeoLinkGroup[] = [
       {
         href: "/calculadora-previsor-tempo",
         label: "Previsor de tempo de corrida",
+      },
+      {
+        href: "/calculadora-fc-maxima",
+        label: "Calculadora de FC máxima e zonas",
       },
     ],
   },

@@ -8,6 +8,7 @@ import {
 } from "./common-inputs";
 import { GOAL_OPTIONS, WORK_TYPE_OPTIONS } from "./options";
 import type { Calculator } from "./types";
+import { SCIENTIFIC_REVIEW_DATE } from "./content-standards";
 
 export const gastoCaloricoCalculator: Calculator = {
   slug: "calculadora-gasto-calorico",
@@ -23,6 +24,7 @@ export const gastoCaloricoCalculator: Calculator = {
   simpleMode: true,
   advancedMode: true,
   formula: "GET = TMB × fator de atividade",
+  scientificReviewDate: SCIENTIFIC_REVIEW_DATE,
   relatedSlugs: ["calculadora-deficit-calorico", "calculadora-tmb"],
   seoContent: {
     about:
